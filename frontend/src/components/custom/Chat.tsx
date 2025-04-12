@@ -9,6 +9,7 @@ import axios from "axios";
 import { useSocket } from "../../context/SocketContext";
 import { BACKEND_URL } from "../../config";
 import { useParams, useNavigate } from "react-router-dom";
+import { Send, Search, Smile } from "lucide-react";
 
 interface Message {
   _id: string;
@@ -65,7 +66,7 @@ const ChatComponent: React.FC = () => {
   const fetchConversations = async () => {
     if (!user?.id) return;
 
-    const token = localStorage.getItem("token"); // make sure the token is stored with this key
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found in localStorage");
       return;
@@ -81,7 +82,6 @@ const ChatComponent: React.FC = () => {
           },
         }
       );
-      console.log(res);
       setConversations(res.data);
     } catch (err) {
       console.error("Error fetching conversations", err);
@@ -94,11 +94,7 @@ const ChatComponent: React.FC = () => {
   const fetchReceiverDetails = async () => {
     if (!receiverId) return;
 
-    // if (!user?.id) return;
-
-    console.log("hgello");
-
-    const token = localStorage.getItem("token"); // make sure the token is stored with this key
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found in localStorage");
       return;
@@ -114,7 +110,6 @@ const ChatComponent: React.FC = () => {
           },
         }
       );
-      console.log(res, "Receiver Id");
       setReceiverDetails(res.data);
     } catch (err) {
       console.error("Error fetching receiver details", err);
@@ -123,7 +118,7 @@ const ChatComponent: React.FC = () => {
     }
   };
 
-  // 🔁 Fetch chat history
+  // Fetch chat history
   const fetchMessages = async () => {
     if (!user?.id || !receiverId) return;
 
@@ -142,8 +137,7 @@ const ChatComponent: React.FC = () => {
     }
   };
 
-  // ▶️ Send new message
-  // After sending a message, append it to the state instead of refetching all messages
+  // Send new message
   const sendMessage = async () => {
     if (!message.trim() || !receiverId?.trim() || !user?.id) return;
 
@@ -184,13 +178,9 @@ const ChatComponent: React.FC = () => {
       .includes(searchQuery.toLowerCase())
   );
 
-  // filteredConversations;
-
   const filtered = filteredConversations.filter(
     (convo) => convo.user._id.toString() !== user.id.toString()
   );
-  console.log(user);
-  console.log(filtered);
 
   const handleSelectConversation = (userId: string) => {
     navigate(`/chat/${userId}`);
@@ -229,9 +219,6 @@ const ChatComponent: React.FC = () => {
           return [...prevMessages, data];
         });
       }
-
-      // No need to refresh entire conversation list here
-      // Just update the relevant conversation
     };
 
     socket.on("newMessage", handleNewMessage);
@@ -240,42 +227,15 @@ const ChatComponent: React.FC = () => {
       socket.off("newMessage", handleNewMessage);
     };
   }, [socket, receiverId, user?.id]);
+
   if (!user?.id) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "30px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{ fontSize: "24px", marginBottom: "15px", color: "#075e54" }}
-          >
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <div className="rounded-lg bg-white p-8 shadow-md">
+          <div className="mb-4 text-xl font-medium text-gray-700">
             Loading chat...
           </div>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              border: "3px solid #128C7E",
-              borderTopColor: "transparent",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto",
-            }}
-          ></div>
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-emerald-600"></div>
         </div>
       </div>
     );
@@ -332,96 +292,42 @@ const ChatComponent: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        width: "100%",
-        backgroundColor: "#f5f5f5",
-        overflow: "hidden",
-      }}
-    >
+    <div className="flex h-screen w-full overflow-hidden bg-gray-50">
       {/* Left sidebar with conversations list */}
-      <div
-        style={{
-          width: "350px",
-          borderRight: "1px solid #e0e0e0",
-          backgroundColor: "white",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+      <div className="flex w-80 flex-col border-r border-gray-200 bg-white">
         {/* Header */}
-        <div
-          style={{
-            backgroundColor: "#075e54",
-            color: "white",
-            padding: "15px 20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <h2 style={{ margin: 0, fontSize: "20px" }}>Messages</h2>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              backgroundColor: "#128C7E",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "white",
-              fontWeight: "bold",
-            }}
-          >
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">
+          <h2 className="text-xl font-semibold text-gray-800">Messages</h2>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
             {user.firstName?.charAt(0)}
             {user.lastName?.charAt(0)}
           </div>
         </div>
 
         {/* Search */}
-        <div
-          style={{ padding: "10px 15px", borderBottom: "1px solid #e0e0e0" }}
-        >
-          <input
-            type="text"
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            style={{
-              width: "100%",
-              padding: "10px 15px",
-              borderRadius: "20px",
-              border: "1px solid #e0e0e0",
-              outline: "none",
-              backgroundColor: "#f0f0f0",
-            }}
-          />
+        <div className="border-b border-gray-200 p-4">
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
         </div>
 
         {/* Conversations list */}
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <div className="flex-1 overflow-y-auto">
           {isLoadingConversations ? (
-            <div
-              style={{ padding: "20px", textAlign: "center", color: "#666" }}
-            >
+            <div className="p-4 text-center text-sm text-gray-500">
               Loading conversations...
             </div>
           ) : filtered.length === 0 ? (
-            <div
-              style={{ padding: "20px", textAlign: "center", color: "#666" }}
-            >
+            <div className="p-4 text-center text-sm text-gray-500">
               {searchQuery
                 ? "No conversations match your search"
                 : "No conversations yet"}
@@ -431,108 +337,66 @@ const ChatComponent: React.FC = () => {
               <div
                 key={conv.user?._id}
                 onClick={() => handleSelectConversation(conv.user._id)}
-                style={{
-                  padding: "15px",
-                  borderBottom: "1px solid #f0f0f0",
-                  display: "flex",
-                  cursor: "pointer",
-                  backgroundColor:
-                    receiverId === conv.user?._id ? "#f0f0f0" : "white",
-                  transition: "background-color 0.2s",
-                }}
+                className={`cursor-pointer border-b border-gray-100 p-4 transition hover:bg-gray-50 ${
+                  receiverId === conv.user?._id ? "bg-gray-50" : ""
+                }`}
               >
-                {/* Avatar */}
-                <div
-                  style={{
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
-                    backgroundColor:
-                      receiverId === conv.user?._id ? "#128C7E" : "#e0e0e0",
-                    color: receiverId === conv.user?._id ? "white" : "#666",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: "15px",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {getUserInitials(conv.user?.firstName, conv.user?.lastName)}
-                </div>
-
-                {/* Conversation details */}
-                <div style={{ flex: 1, overflow: "hidden" }}>
+                <div className="flex items-start">
+                  {/* Avatar */}
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "5px",
-                    }}
+                    className={`mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                      receiverId === conv.user?._id
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
                   >
-                    <div
-                      style={{
-                        fontWeight: conv.unreadCount > 0 ? "bold" : "normal",
-                        fontSize: "16px",
-                        color: "#333",
-                      }}
-                    >
-                      {conv.user?.firstName} {conv.user?.lastName}
-                    </div>
-                    {conv.latestMessage && (
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: conv.unreadCount > 0 ? "#128C7E" : "#999",
-                        }}
-                      >
-                        {formatDate(conv.latestMessage.createdAt)}
-                      </div>
-                    )}
+                    {getUserInitials(conv.user?.firstName, conv.user?.lastName)}
                   </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "14px",
-                        color: conv.unreadCount > 0 ? "#333" : "#666",
-                        fontWeight: conv.unreadCount > 0 ? "bold" : "normal",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        maxWidth: "210px",
-                      }}
-                    >
-                      {conv.latestMessage
-                        ? truncateText(conv.latestMessage.content, 30)
-                        : "Start a conversation"}
+                  {/* Conversation details */}
+                  <div className="flex-1 overflow-hidden">
+                    <div className="mb-1 flex items-center justify-between">
+                      <span
+                        className={`text-sm ${
+                          conv.unreadCount > 0
+                            ? "font-semibold text-gray-900"
+                            : "font-medium text-gray-700"
+                        }`}
+                      >
+                        {conv.user?.firstName} {conv.user?.lastName}
+                      </span>
+                      {conv.latestMessage && (
+                        <span
+                          className={`text-xs ${
+                            conv.unreadCount > 0
+                              ? "text-emerald-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {formatDate(conv.latestMessage.createdAt)}
+                        </span>
+                      )}
                     </div>
 
-                    {conv.unreadCount > 0 && (
-                      <div
-                        style={{
-                          backgroundColor: "#25D366",
-                          color: "white",
-                          borderRadius: "50%",
-                          minWidth: "20px",
-                          height: "20px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "12px",
-                          padding: "0 5px",
-                        }}
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`truncate text-xs ${
+                          conv.unreadCount > 0
+                            ? "font-medium text-gray-800"
+                            : "text-gray-500"
+                        }`}
                       >
-                        {conv.unreadCount}
-                      </div>
-                    )}
+                        {conv.latestMessage
+                          ? truncateText(conv.latestMessage.content, 30)
+                          : "Start a conversation"}
+                      </span>
+
+                      {conv.unreadCount > 0 && (
+                        <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-xs font-medium text-white">
+                          {conv.unreadCount}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -543,279 +407,141 @@ const ChatComponent: React.FC = () => {
 
       {/* Right side chat area */}
       {receiverId ? (
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#e5ddd5", // WhatsApp background color
-            position: "relative",
-            backgroundImage:
-              "url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2U1ZGRkNSIvPjxwYXRoIGQ9Ik0wIDEwMGgxMDBtMTAwIDBoLTEwMG0wLTEwMHYxMDBtMCAxMDB2LTEwMCIgc3Ryb2tlPSIjZDFjN2JkIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==')",
-            backgroundRepeat: "repeat",
-            backgroundSize: "100px 100px",
-          }}
-        >
+        <div className="flex flex-1 flex-col bg-white">
           {/* Chat header */}
-          <div
-            style={{
-              padding: "10px 16px",
-              backgroundColor: "#f0f0f0",
-              color: "#333",
-              display: "flex",
-              alignItems: "center",
-              borderBottom: "1px solid #e0e0e0",
-              height: "65px",
-            }}
-          >
+          <div className="flex items-center border-b border-gray-200 px-6 py-3">
             {isFetchingUser ? (
-              <div>Loading user...</div>
+              <div className="text-sm text-gray-500">Loading user...</div>
             ) : receiverDetails ? (
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <div
-                  style={{
-                    width: "45px",
-                    height: "45px",
-                    borderRadius: "50%",
-                    backgroundColor: "#128C7E",
-                    color: "white",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: "15px",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                  }}
-                >
+              <div className="flex items-center">
+                <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
                   {getUserInitials(
                     receiverDetails?.firstName,
                     receiverDetails?.lastName
                   )}
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "16px" }}>
+                  <h3 className="text-sm font-medium text-gray-900">
                     {receiverDetails?.firstName} {receiverDetails?.lastName}
                   </h3>
+                  {receiverDetails?.status && (
+                    <p className="text-xs text-gray-500">
+                      {receiverDetails.status}
+                    </p>
+                  )}
                 </div>
               </div>
             ) : (
-              <div>Select a conversation</div>
+              <div className="text-sm text-gray-500">Select a conversation</div>
             )}
           </div>
 
           {/* Messages container */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-            }}
-          >
+          <div className="flex-1 overflow-y-auto bg-gray-50 p-6">
             {loading ? (
-              <div
-                style={{ textAlign: "center", padding: "20px", color: "#666" }}
-              >
-                Loading messages...
+              <div className="flex h-full items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-emerald-600"></div>
               </div>
             ) : messages.length === 0 ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "100%",
-                  color: "#666",
-                  textAlign: "center",
-                  padding: "0 20px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    backgroundColor: "#f0f0f0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "20px",
-                    fontSize: "40px",
-                    color: "#999",
-                  }}
-                >
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-2xl text-gray-400">
                   💬
                 </div>
-                <h3 style={{ margin: "0 0 10px", color: "#333" }}>
+                <h3 className="mb-2 text-base font-medium text-gray-800">
                   No messages yet
                 </h3>
-                <p>Start the conversation by sending a message below.</p>
+                <p className="text-sm text-gray-500">
+                  Start the conversation by sending a message below.
+                </p>
               </div>
             ) : (
-              messages.map((msg, index) => {
-                const isCurrentUser = msg.sender === user.id;
-                const showDateHeader =
-                  index === 0 ||
-                  new Date(msg.createdAt).toDateString() !==
-                    new Date(messages[index - 1].createdAt).toDateString();
+              <div className="space-y-4">
+                {messages.map((msg, index) => {
+                  const isCurrentUser = msg.sender === user.id;
+                  const showDateHeader =
+                    index === 0 ||
+                    new Date(msg.createdAt).toDateString() !==
+                      new Date(messages[index - 1].createdAt).toDateString();
 
-                return (
-                  <React.Fragment key={msg._id}>
-                    {showDateHeader && (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          margin: "10px 0",
-                          position: "relative",
-                          zIndex: 1,
-                        }}
-                      >
-                        <span
-                          style={{
-                            backgroundColor: "rgba(225, 245, 254, 0.92)",
-                            borderRadius: "8px",
-                            padding: "5px 12px",
-                            fontSize: "12px",
-                            boxShadow: "0 1px 0.5px rgba(0, 0, 0, 0.13)",
-                            color: "#263238",
-                          }}
-                        >
-                          {new Date(msg.createdAt).toLocaleDateString([], {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </span>
-                      </div>
-                    )}
+                  return (
+                    <React.Fragment key={msg._id}>
+                      {showDateHeader && (
+                        <div className="my-4 flex justify-center">
+                          <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
+                            {new Date(msg.createdAt).toLocaleDateString([], {
+                              weekday: "long",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                      )}
 
-                    <div
-                      style={{
-                        alignSelf: isCurrentUser ? "flex-end" : "flex-start",
-                        maxWidth: "70%",
-                        position: "relative",
-                      }}
-                    >
                       <div
-                        style={{
-                          backgroundColor: isCurrentUser ? "#dcf8c6" : "white",
-                          padding: "8px 12px",
-                          borderRadius: "7.5px",
-                          position: "relative",
-                          boxShadow: "0 1px 0.5px rgba(0, 0, 0, 0.13)",
-                          marginBottom: "10px",
-                        }}
+                        className={`flex ${
+                          isCurrentUser ? "justify-end" : "justify-start"
+                        }`}
                       >
                         <div
-                          style={{
-                            marginRight: "35px",
-                            wordBreak: "break-word",
-                          }}
+                          className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                            isCurrentUser
+                              ? "bg-emerald-50 text-gray-800"
+                              : "bg-white text-gray-800"
+                          } shadow-sm`}
                         >
-                          {msg.content}
+                          <div className="text-sm">{msg.content}</div>
+                          <div
+                            className={`mt-1 text-right text-xs text-gray-500`}
+                          >
+                            {formatTime(msg.createdAt)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </React.Fragment>
-                );
-              })
+                    </React.Fragment>
+                  );
+                })}
+                <div ref={chatEndRef} />
+              </div>
             )}
-            <div ref={chatEndRef} />
           </div>
 
           {/* Message input */}
-          <div
-            style={{
-              padding: "10px 16px",
-              backgroundColor: "#f0f0f0",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              borderTop: "1px solid #e0e0e0",
-            }}
-          >
-            <button
-              style={{
-                backgroundColor: "#f1f1f1",
-                border: "none",
-                borderRadius: "50%",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "#555",
-                fontSize: "20px",
-              }}
-            >
-              😊
-            </button>
+          <div className="border-t border-gray-200 bg-white p-4">
+            <div className="flex items-center rounded-lg border border-gray-300 bg-white">
+              <button className="flex h-10 w-10 items-center justify-center text-gray-500 hover:text-emerald-500">
+                <Smile className="h-5 w-5" />
+              </button>
 
-            <input
-              value={message}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
-              style={{
-                flex: 1,
-                padding: "12px 16px",
-                borderRadius: "20px",
-                border: "none",
-                outline: "none",
-                backgroundColor: "white",
-                fontSize: "15px",
-              }}
-            />
+              <input
+                value={message}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Type a message..."
+                className="flex-1 bg-transparent px-3 py-2 text-sm focus:outline-none"
+              />
 
-            <button
-              onClick={sendMessage}
-              disabled={loading || !message.trim()}
-              style={{
-                backgroundColor: "#00a884",
-                color: "white",
-                border: "none",
-                borderRadius: "50%",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: message.trim() ? "pointer" : "default",
-                opacity: message.trim() ? 1 : 0.5,
-                fontSize: "18px",
-              }}
-            >
-              {loading ? "•••" : "➤"}
-            </button>
+              <button
+                onClick={sendMessage}
+                disabled={loading || !message.trim()}
+                className={`mr-1 flex h-8 w-8 items-center justify-center rounded-full ${
+                  message.trim()
+                    ? "bg-emerald-500 text-white"
+                    : "bg-gray-200 text-gray-400"
+                }`}
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#f8f9fa",
-            color: "#667781",
-            textAlign: "center",
-            padding: "0 50px",
-          }}
-        >
-          <div style={{ fontSize: "70px", marginBottom: "20px" }}>💬</div>
-          <h2
-            style={{ marginBottom: "10px", color: "#41525d", fontSize: "32px" }}
-          >
-            Welcome to the Chat App
+        <div className="flex flex-1 flex-col items-center justify-center bg-white text-center">
+          <div className="mb-6 text-5xl text-gray-300">💬</div>
+          <h2 className="mb-3 text-xl font-medium text-gray-800">
+            Select a conversation
           </h2>
-          <p style={{ fontSize: "16px", maxWidth: "560px", lineHeight: "1.5" }}>
-            Select a conversation from the left or start a new chat to begin
+          <p className="max-w-md text-sm text-gray-500">
+            Choose a conversation from the sidebar or start a new chat to begin
             messaging
           </p>
         </div>
