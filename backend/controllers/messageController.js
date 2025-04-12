@@ -40,3 +40,25 @@ export const sendMessage = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getMessage = async (req, res) => {
+  try {
+    const { sender, receiver } = req.body;
+
+    if (!sender || !receiver) {
+      return res.status(400).json({ message: "Missing sender or receiver" });
+    }
+
+    const messages = await MessageModel.find({
+      $or: [
+        { sender, receiver },
+        { sender: receiver, receiver: sender },
+      ],
+    }).sort({ createdAt: 1 }); // oldest to newest
+
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
