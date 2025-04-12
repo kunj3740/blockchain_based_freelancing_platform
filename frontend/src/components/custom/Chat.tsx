@@ -10,6 +10,17 @@ import { useSocket } from "../../context/SocketContext";
 import { BACKEND_URL } from "../../config";
 import { useParams, useNavigate } from "react-router-dom";
 import { Send, Search, Smile } from "lucide-react";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
 
 interface Message {
   _id: string;
@@ -56,6 +67,8 @@ const ChatComponent: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const [isFetchingUser, setIsFetchingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
 
   console.log(user);
 
@@ -160,6 +173,10 @@ const ChatComponent: React.FC = () => {
     } catch (error) {
       console.error("Error sending message:", error);
     }
+  };
+
+  const handleBooking = () => {
+    console.log({ description, amount });
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -415,8 +432,8 @@ const ChatComponent: React.FC = () => {
             {isFetchingUser ? (
               <div className="text-sm text-gray-500">Loading user...</div>
             ) : receiverDetails ? (
-              <div className="flex items-center w-full">
-                <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex  items-center">
                   <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
                     {getUserInitials(
                       receiverDetails?.firstName,
@@ -433,7 +450,75 @@ const ChatComponent: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  <div>Initialize Booking</div>
+                </div>
+                <div className="flex gap-5">
+                  {user.role === "freelancer" && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
+                          Initialize Booking
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Initialize Booking</DialogTitle>
+                          <DialogDescription>
+                            Provide the project details and amount.
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 py-2">
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="description">Description</label>
+                            <Input
+                              id="description"
+                              placeholder="Project description"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                            />
+                          </div>
+
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="amount">Amount</label>
+                            <Input
+                              id="amount"
+                              placeholder="Enter amount (INR)"
+                              type="number"
+                              value={amount}
+                              onChange={(e) => setAmount(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <Button
+                            onClick={handleBooking}
+                            className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]"
+                          >
+                            Confirm Booking
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <Dialog>
+                    <DialogTrigger className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
+                      <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
+                        Second Button
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your account and remove your data from our
+                          servers.
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             ) : (
