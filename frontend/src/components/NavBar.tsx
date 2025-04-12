@@ -1,7 +1,14 @@
 import { Button } from "./ui/button";
-import { Menu, Search, LogOut } from "lucide-react";
+import { Menu, Search, LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
 const categories = [
   "Graphics & Design",
@@ -17,12 +24,31 @@ const categories = [
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInitial, setUserInitial] = useState("");
+  const [userRole, setUserRole] = useState("")
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if token exists in localStorage
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
+    
+    // Get user's first initial if logged in
+    if (token) {
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          setUserRole(user.role)
+          if (user.firstName && user.firstName.length > 0) {
+            setUserInitial(user.firstName.charAt(0).toUpperCase());
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        setUserInitial("U");
+      }
+    }
   }, []);
 
   const handleLogout = () => {
@@ -30,6 +56,14 @@ export function Navbar() {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
     navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    if(userRole === "freelancer") {
+      navigate('/freelancer/profile');
+    } else if(userRole === "client") {
+      navigate('/client/profile');  
+    }
   };
 
   return (
@@ -44,7 +78,7 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="hidden  sm:ml-6 sm:flex sm:items-center space-x-4">
+          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
             <div className="relative">
               <input
                 type="text"
@@ -54,23 +88,38 @@ export function Navbar() {
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
             
-            
             {isLoggedIn ? (
-              
-              <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="p-0 h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8 cursor-pointer">
+                      <AvatarFallback className="bg-green-600 text-white">
+                        {userInitial || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleProfileClick} className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-red-700">
+                    <LogOut className="mr-2 h-4 w-4 hover:bg-red-700" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link to="/freelancer/auth" state={{ role: "freelancer" }}>
-                  <Button>Become a Freelancer</Button>
+                  <Button className="cursor-pointer">Become a Freelancer</Button>
                 </Link>
                 <Link to="/client/auth">
-                  <Button variant="outline">Sign in</Button>
+                  <Button className="cursor-pointer" variant="outline">Sign in</Button>
                 </Link>
                 <Link to="/client/auth">
-                  <Button>Join</Button>
+                  <Button className="cursor-pointer">Join</Button>
                 </Link>
               </>
             )}
@@ -121,14 +170,24 @@ export function Navbar() {
             ))}
             <div className="mt-4 space-y-2 px-3">
               {isLoggedIn ? (
-                <Button 
-                  className="w-full flex items-center justify-center gap-2" 
-                  variant="outline"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full flex items-center justify-center gap-2" 
+                    variant="outline"
+                    onClick={handleProfileClick}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Button>
+                  <Button 
+                    className="w-full flex items-center justify-center gap-2" 
+                    variant="outline"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </div>
               ) : (
                 <>
                   <Button className="w-full" variant="outline">
