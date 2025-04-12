@@ -12,11 +12,13 @@ import {
   getFavorites,
   addToFavorites,
   removeFromFavorites,
+  getAllClient,
   // createReview,
 } from "../controllers/buyerController.js";
 
 // Profile Routes
 router.get("/profile", auth, isBuyer, getProfile);
+router.get("/getAllClients", auth, isBuyer, getAllClient);
 // router.put("/profile", auth, isBuyer, updateProfile);
 // router.delete("/profile", auth, isBuyer, deleteProfile);
 

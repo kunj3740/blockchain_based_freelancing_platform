@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
-import { HomePage } from "./components/HomePage";
-import { ClientAuth } from "./components/ClientAuth";
-import { ListFreeLancer } from "./components/ListFreeLancer";
-import { FreelancerAuth } from "./components/FreeLancerAuth";
-import ListClient from "./components/ListClient";
+import { HomePage } from "./components/custom/HomePage";
+import { ClientAuth } from "./components/custom/ClientAuth";
+import { ListFreeLancer } from "./components/custom/ListFreeLancer";
+import { FreelancerAuth } from "./components/custom/FreeLancerAuth";
+import ListClient from "./components/custom/ListClient";
+import ChatComponet from "./components/custom/Chat";
 
 function App() {
   useEffect(() => {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/freelancer/auth" element={<FreelancerAuth />} />
         <Route path="/client/find" element={<ListClient />} />"
         <Route path="/freelancer/find" element={<ListFreeLancer />} />"
+        <Route path="/chat/:id" element={<ChatComponet />} />"
         {/* <Route path="/" element={<HomePage />} />
 
         {/* You can add more routes here */}

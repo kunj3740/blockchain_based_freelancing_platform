@@ -10,6 +10,7 @@ import { io, Socket } from "socket.io-client";
 // Define the shape of the context value
 interface SocketContextType {
   socket: Socket | null;
+  user: any;
 }
 
 // Create context with default value
@@ -24,16 +25,32 @@ const SocketContextProvider: React.FC<SocketContextProviderProps> = ({
   children,
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [user, setUser] = useState();
 
   useEffect(() => {
     console.log("Attempting to connect to socket server...");
 
-    const id = localStorage.getItem("id");
+    // Get user from localStorage safely
+    const storedUser = localStorage.getItem("user");
+    let userId: string | null = null;
 
-    console.log(id);
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        userId = parsedUser?.id;
+      } catch (error) {
+        console.error("Failed to parse user from localStorage:", error);
+      }
+    }
+
+    if (!userId) {
+      console.warn("No userId found in localStorage");
+      return;
+    }
 
     const newSocket = io("http://localhost:8000", {
-      query: { userId: id },
+      query: { userId },
     });
 
     newSocket.on("connect", () => {
@@ -54,7 +71,7 @@ const SocketContextProvider: React.FC<SocketContextProviderProps> = ({
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ socket, user }}>
       {children}
     </SocketContext.Provider>
   );
@@ -66,7 +83,7 @@ export default SocketContextProvider;
 export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (!context) {
-    return { socket: null };
+    return { socket: null, user: null };
   }
   return context;
 };

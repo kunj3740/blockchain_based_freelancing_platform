@@ -1,7 +1,7 @@
 // controllers/buyerController.js
 
 import ClientModel from "../models/client.model.js";
-import gigModel from "../models/gig.model.js";
+// import gigModel from "../models/gig.model.js";
 import OrderModel from "../models/order.model.js";
 
 export async function getProfile(req, res) {
@@ -10,6 +10,18 @@ export async function getProfile(req, res) {
     res.json({
       success: true,
       data: buyer,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export async function getAllClient(req, res) {
+  try {
+    const clients = await ClientModel.find();
+    res.json({
+      success: true,
+      data: clients,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

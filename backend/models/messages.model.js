@@ -3,29 +3,14 @@ import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema(
   {
-    conversation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Conversation",
-      required: true,
-    },
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "senderType",
       required: true,
     },
-    senderType: {
-      type: String,
-      enum: ["Buyer", "Freelancer"],
-      required: true,
-    },
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "receiverType",
-      required: true,
-    },
-    receiverType: {
-      type: String,
-      enum: ["Buyer", "Freelancer"],
       required: true,
     },
     content: {
@@ -40,6 +25,22 @@ const messageSchema = new mongoose.Schema(
         size: Number,
       },
     ],
+    readyToMake: {
+      isReady: {
+        type: Boolean,
+        default: false,
+      },
+      amount: {
+        type: Number,
+      },
+      isPaid: {
+        type: Boolean,
+        default: false,
+      },
+      finalMessage: {
+        type: String,
+      },
+    },
     metadata: {
       type: {
         type: String,

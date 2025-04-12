@@ -171,3 +171,16 @@ export async function updateSkills(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+export async function getAllFreelancer(req, res) {
+  try {
+    const freelancer = await FreelancerModel.find();
+
+    res.json({
+      success: true,
+      data: freelancer,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
