@@ -29,10 +29,12 @@ export const sendMessage = async (req, res) => {
     });
 
     const receiverSocketId = getReceiverSocketId(receiver);
+    const senderSocketId = getReceiverSocketId(sender);
 
-    console.log(receiverSocketId);
+    // console.log(receiverSocketId);
 
     io.to(receiverSocketId).emit("newMessage", newMessage);
+    io.to(senderSocketId).emit("newMessage", newMessage);
 
     return res.status(201).json({ message: "Message sent", data: newMessage });
   } catch (error) {
@@ -55,7 +57,7 @@ export const getMessage = async (req, res) => {
         { sender: receiver, receiver: sender },
       ],
     }).sort({ createdAt: 1 }); // oldest to newest
-
+    console.log(messages, "Messafe");
     res.json(messages);
   } catch (err) {
     console.error("Error fetching messages:", err);

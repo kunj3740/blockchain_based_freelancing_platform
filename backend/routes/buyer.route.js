@@ -18,7 +18,7 @@ import {
 
 // Profile Routes
 router.get("/profile", auth, isBuyer, getProfile);
-router.get("/getAllClients", auth, isBuyer, getAllClient);
+router.get("/getAllClients", auth, getAllClient);
 // router.put("/profile", auth, isBuyer, updateProfile);
 // router.delete("/profile", auth, isBuyer, deleteProfile);
 

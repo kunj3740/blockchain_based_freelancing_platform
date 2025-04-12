@@ -81,7 +81,7 @@ export const ClientAuth = () => {
 
     try {
       const response = await axios.post<AuthResponse>(
-        `${BACKEND_URL}/api/auth/register/buyer`,
+        `${BACKEND_URL}/api/auth/register/client`,
         signupFormData
       );
 
@@ -92,7 +92,7 @@ export const ClientAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/client/find";
+          window.location.href = "/freelancer/find";
         }, 1500);
       }
     } catch (err: any) {

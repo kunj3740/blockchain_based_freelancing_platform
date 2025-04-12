@@ -131,7 +131,7 @@ const ChatComponent: React.FC = () => {
       }}
     >
       <h2 style={{ textAlign: "center", marginBottom: "10px" }}>
-        Chat with {receiverId}
+        Chat with {user.firstName + " " + user.lastName}
       </h2>
 
       <div
