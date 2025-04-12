@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../../config";
 import { Link } from "react-router-dom";
 import { User, MessageSquare, Search } from "lucide-react";
+import { useSocket } from "../../context/SocketContext";
 
 // Define the TypeScript interface for a Client
 interface Client {
@@ -23,11 +24,16 @@ const ListClient = () => {
 
   const fetchAllClient = async () => {
     setIsLoading(true);
+    const user = localStorage.getItem("user");
+    if (!user) return;
+    const parsedUser = JSON.parse(user);
     try {
       const token = localStorage.getItem("token");
+      console.log(user);
 
-      const response = await axios.get<{ data: Client[] }>(
+      const response = await axios.post<{ data: Client[] }>(
         `${BACKEND_URL}/api/buyers/getAllClients`,
+        { userID: parsedUser.id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,6 +41,8 @@ const ListClient = () => {
           },
         }
       );
+
+      console.log(response);
 
       setClients(response.data.data);
     } catch (error) {
@@ -97,17 +105,19 @@ const ListClient = () => {
                 className="border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
               >
                 <div className="p-6 flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    
-                  </div>
+                  <div className="flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">
                       {client.firstName} {client.lastName}
                     </h3>
-                    <p className="text-sm text-gray-500 truncate">{client.email}</p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {client.email}
+                    </p>
                     {(client.city || client.country) && (
                       <p className="text-xs text-gray-400 mt-1">
-                        {[client.city, client.country].filter(Boolean).join(", ")}
+                        {[client.city, client.country]
+                          .filter(Boolean)
+                          .join(", ")}
                       </p>
                     )}
                   </div>

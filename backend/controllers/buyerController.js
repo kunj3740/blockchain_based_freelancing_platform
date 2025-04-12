@@ -1,6 +1,7 @@
 // controllers/buyerController.js
 
 import ClientModel from "../models/client.model.js";
+import MessageModel from "../models/messages.model.js";
 // import gigModel from "../models/gig.model.js";
 import OrderModel from "../models/order.model.js";
 
@@ -18,12 +19,45 @@ export async function getProfile(req, res) {
 
 export async function getAllClient(req, res) {
   try {
-    const clients = await ClientModel.find();
-    res.json({
+    const { userID } = req.body;
+
+    if (!userID) {
+      return res.status(400).json({ error: "userID is required" });
+    }
+
+    // Get all messages involving the freelancer
+    const messages = await MessageModel.find({
+      $or: [{ sender: userID }, { receiver: userID }],
+    });
+
+    // Extract unique client IDs (the other person in the chat)
+    const clientIds = new Set();
+
+    for (const message of messages) {
+      const senderId = message.sender.toString();
+      const receiverId = message.receiver.toString();
+
+      const otherUserId =
+        senderId === userID.toString() ? receiverId : senderId;
+
+      // Check if the other user is a client
+      const isClient = await ClientModel.exists({ _id: otherUserId });
+      if (isClient) {
+        clientIds.add(otherUserId);
+      }
+    }
+
+    // Fetch all matched clients
+    const clients = await ClientModel.find({
+      _id: { $in: Array.from(clientIds) },
+    });
+
+    return res.json({
       success: true,
       data: clients,
     });
   } catch (error) {
+    console.error("Error in getAllClient:", error);
     res.status(500).json({ error: error.message });
   }
 }

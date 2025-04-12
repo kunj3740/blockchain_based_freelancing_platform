@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
+import { Link } from "react-router-dom";
 
 interface SignupFormData {
   email: string;
@@ -123,7 +124,7 @@ export const ClientAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/freelancer/find";
         }, 1500);
       }
     } catch (err: any) {
@@ -138,7 +139,9 @@ export const ClientAuth = () => {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="px-6 py-8">
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-extrabold text-gray-900">Welcome</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Client Portal
+            </h2>
             <p className="mt-2 text-sm text-gray-600">
               {activeTab === "login"
                 ? "Sign in to your account"
@@ -429,6 +432,9 @@ export const ClientAuth = () => {
                   </button>
                 </>
               )}
+              <Link to={"/freelancer/auth"}>
+                <div className="text-gray-600">Login ad Freelancer?</div>
+              </Link>
             </p>
           </div>
         </div>
