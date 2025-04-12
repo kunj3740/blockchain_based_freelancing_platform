@@ -1,8 +1,7 @@
-//navbar
 import { Button } from "./ui/button";
-import { Menu, Search } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Menu, Search, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const categories = [
   "Graphics & Design",
@@ -17,6 +16,21 @@ const categories = [
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if token exists in localStorage
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigate('/');
+  };
 
   return (
     <nav className="border-b">
@@ -30,7 +44,7 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+          <div className="hidden  sm:ml-6 sm:flex sm:items-center space-x-4">
             <div className="relative">
               <input
                 type="text"
@@ -39,16 +53,27 @@ export function Navbar() {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-            <Link to="/freelancer/auth" state={{ role: "freelancer" }}>
-                <Button>Become a Freelancer</Button>
-                </Link>
-                <Link to="/client/auth" >
-                <Button variant="outline">Sign in</Button>
+            
+            
+            {isLoggedIn ? (
+              
+              <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            ) : (
+              <>
+                <Link to="/freelancer/auth" state={{ role: "freelancer" }}>
+                  <Button>Become a Freelancer</Button>
                 </Link>
                 <Link to="/client/auth">
-                <Button>Join</Button>
+                  <Button variant="outline">Sign in</Button>
                 </Link>
-
+                <Link to="/client/auth">
+                  <Button>Join</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center sm:hidden">
@@ -95,10 +120,23 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 space-y-2 px-3">
-              <Button className="w-full" variant="outline">
-                Sign in
-              </Button>
-              <Button className="w-full">Join</Button>
+              {isLoggedIn ? (
+                <Button 
+                  className="w-full flex items-center justify-center gap-2" 
+                  variant="outline"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              ) : (
+                <>
+                  <Button className="w-full" variant="outline">
+                    Sign in
+                  </Button>
+                  <Button className="w-full">Join</Button>
+                </>
+              )}
             </div>
           </div>
         </div>
