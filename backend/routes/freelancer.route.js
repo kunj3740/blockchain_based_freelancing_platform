@@ -9,10 +9,12 @@ import {
   deletePortfolioItem,
   updateSkills,
   getEarnings,
+  getAllFreelancer,
 } from "../controllers/freelancerController.js";
 
 // Profile Routes
 router.get("/profile", auth, isFreelancer, getProfile);
+router.get("/getAllFreelancer", auth, getAllFreelancer);
 
 // Portfolio & Skills
 router.post("/portfolio", auth, isFreelancer, addPortfolioItem);

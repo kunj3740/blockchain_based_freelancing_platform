@@ -10,6 +10,7 @@ import gitRoute from "./routes/gig.route.js";
 import categoryRoute from "./routes/category.route.js";
 import orderRoute from "./routes/order.route.js";
 import buyerRoute from "./routes/buyer.route.js";
+import messageRoute from "./routes/message.route.js";
 import { io, app, server } from "./lib/socket.js";
 
 dotenv.config();
@@ -26,7 +27,7 @@ app.use("/api/freelancers", freelancerRoutes);
 app.use("/api/gigs", gitRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/categories", categoryRoute);
-// app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/messages", messageRoute);
 
 // Routes
 app.get("/", (req, res) => {

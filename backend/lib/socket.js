@@ -22,10 +22,11 @@ io.on("connection", (socket) => {
     console.log("Message received:", msg);
   });
 
-  const userId = socket.handshake.query.id;
-  console.log(userId);
+  const userId = socket.handshake.query.userId;
 
   users[userId] = socket.id;
+
+  console.log(users);
 
   socket.on("disconnect", () => {
     console.log(`Socket disconnected: ${socket.id}`);
@@ -33,6 +34,7 @@ io.on("connection", (socket) => {
 });
 
 export const getReceiverSocketId = (receiverId) => {
+  console.log(receiverId);
   return users[receiverId];
 };
 
