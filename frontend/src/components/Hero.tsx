@@ -1,13 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Search, Wallet, FileCheck, Scale, ArrowRight, Star } from "lucide-react"
-import { Input } from "./ui/input"
-import { Link } from "react-router-dom"
-import { Button } from "./ui/button"
+import { useState } from "react";
+import {
+  Search,
+  Wallet,
+  FileCheck,
+  Scale,
+  ArrowRight,
+  Star,
+} from "lucide-react";
+import { Input } from "./ui/input";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 export function Hero() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-b from-green-50 via-white to-white">
@@ -32,8 +39,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-lg text-gray-600">
-            Connect with talented freelancers in a trustless environment powered by smart contracts, wallet integration,
-            and community-governed dispute resolution.
+            Connect with talented freelancers in a trustless environment powered
+            by smart contracts, wallet integration, and community-governed
+            dispute resolution.
           </p>
 
           <div className="mt-8 flex w-full max-w-2xl items-center">
@@ -48,7 +56,9 @@ export function Hero() {
               <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
             </div>
             <Link
-              to={`/client/find${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ""}`}
+              to={`/client/find${
+                searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ""
+              }`}
               className="inline-flex h-12 items-center justify-center rounded-r-md bg-gradient-to-r from-green-600 to-emerald-600 px-6 font-medium text-white transition-all hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
               Search
@@ -58,7 +68,12 @@ export function Hero() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm">
             <span className="text-gray-500">Popular:</span>
-            {["Smart Contract Development", "DeFi Experts", "NFT Design", "Web3 Integration"].map((tag) => (
+            {[
+              "Smart Contract Development",
+              "DeFi Experts",
+              "NFT Design",
+              "Web3 Integration",
+            ].map((tag) => (
               <Button
                 key={tag}
                 variant="outline"
@@ -76,9 +91,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <Wallet className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Wallet Integration</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Wallet Integration
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Connect your crypto wallet for seamless, secure payments and identity verification.
+                Connect your crypto wallet for seamless, secure payments and
+                identity verification.
               </p>
             </div>
 
@@ -86,9 +104,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <FileCheck className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Smart Contract Escrow</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Smart Contract Escrow
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Funds are held securely in escrow and automatically released when project milestones are met.
+                Funds are held securely in escrow and automatically released
+                when project milestones are met.
               </p>
             </div>
 
@@ -96,9 +117,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <Scale className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Community Dispute Resolution</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Community Dispute Resolution
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Fair and transparent dispute handling through jury voting from our trusted community members.
+                Fair and transparent dispute handling through jury voting from
+                our trusted community members.
               </p>
             </div>
           </div>
@@ -119,5 +143,5 @@ export function Hero() {
         </div>
       </div>
     </div>
-  )
+  );
 }
