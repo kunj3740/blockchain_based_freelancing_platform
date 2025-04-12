@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react"
 import { Search, Wallet, FileCheck, Scale, ArrowRight, Star } from "lucide-react"
@@ -51,8 +51,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-lg text-gray-600">
-            Connect with talented freelancers in a trustless environment powered by smart contracts, wallet integration,
-            and community-governed dispute resolution.
+            Connect with talented freelancers in a trustless environment powered
+            by smart contracts, wallet integration, and community-governed
+            dispute resolution.
           </p>
 
           {userRole === "client" && (
@@ -99,9 +100,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <Wallet className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Wallet Integration</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Wallet Integration
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Connect your crypto wallet for seamless, secure payments and identity verification.
+                Connect your crypto wallet for seamless, secure payments and
+                identity verification.
               </p>
             </div>
 
@@ -109,9 +113,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <FileCheck className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Smart Contract Escrow</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Smart Contract Escrow
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Funds are held securely in escrow and automatically released when project milestones are met.
+                Funds are held securely in escrow and automatically released
+                when project milestones are met.
               </p>
             </div>
 
@@ -119,9 +126,12 @@ export function Hero() {
               <div className="p-4 bg-green-50 rounded-full group-hover:bg-green-100 transition-colors">
                 <Scale className="h-7 w-7 text-green-600" />
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-gray-900">Community Dispute Resolution</h3>
+              <h3 className="mt-5 text-xl font-semibold text-gray-900">
+                Community Dispute Resolution
+              </h3>
               <p className="mt-3 text-gray-600 text-center">
-                Fair and transparent dispute handling through jury voting from our trusted community members.
+                Fair and transparent dispute handling through jury voting from
+                our trusted community members.
               </p>
             </div>
           </div>

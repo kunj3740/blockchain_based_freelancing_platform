@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
+
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Search, Star, User, User2 } from "lucide-react";
 import { Input } from "../ui/input";

@@ -57,6 +57,8 @@ const ChatComponent: React.FC = () => {
   const [isFetchingUser, setIsFetchingUser] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  console.log(user);
+
   // Scroll to bottom on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -413,22 +415,25 @@ const ChatComponent: React.FC = () => {
             {isFetchingUser ? (
               <div className="text-sm text-gray-500">Loading user...</div>
             ) : receiverDetails ? (
-              <div className="flex items-center">
-                <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
-                  {getUserInitials(
-                    receiverDetails?.firstName,
-                    receiverDetails?.lastName
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">
-                    {receiverDetails?.firstName} {receiverDetails?.lastName}
-                  </h3>
-                  {receiverDetails?.status && (
-                    <p className="text-xs text-gray-500">
-                      {receiverDetails.status}
-                    </p>
-                  )}
+              <div className="flex items-center w-full">
+                <div className="flex justify-between items-center">
+                  <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
+                    {getUserInitials(
+                      receiverDetails?.firstName,
+                      receiverDetails?.lastName
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      {receiverDetails?.firstName} {receiverDetails?.lastName}
+                    </h3>
+                    {receiverDetails?.status && (
+                      <p className="text-xs text-gray-500">
+                        {receiverDetails.status}
+                      </p>
+                    )}
+                  </div>
+                  <div>Initialize Booking</div>
                 </div>
               </div>
             ) : (
