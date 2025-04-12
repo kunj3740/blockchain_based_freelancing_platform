@@ -136,24 +136,6 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="hidden border-t sm:block">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-12 items-center space-x-8">
-            {categories.map((category) => (
-              <Link
-                key={category}
-                to={`/categories/${category
-                  .toLowerCase()
-                  .replace(/ & /g, "-")}`}
-                className="text-sm text-gray-500 hover:text-gray-900"
-              >
-                {category}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="space-y-1 px-2 pb-3 pt-2">
