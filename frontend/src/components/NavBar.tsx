@@ -37,6 +37,7 @@ export function Navbar() {
     if (token) {
       try {
         const userData = localStorage.getItem('user');
+        console.log( userData);
         if (userData) {
           const user = JSON.parse(userData);
           setUserRole(user.role)

@@ -7,6 +7,8 @@ import { FreelancerAuth } from "./components/custom/FreeLancerAuth";
 import ListClient from "./components/custom/ListClient";
 import ChatComponet from "./components/custom/Chat";
 import { Navbar } from "./components/NavBar";
+import {ClientProfile} from "./components/ClientProfile";
+import {FreelancerProfile} from "./components/FreelancerProfile";
 
 function App() {
   const location = useLocation();
@@ -28,6 +30,8 @@ function App() {
         <Route path="/client/find" element={<ListClient />} />"
         <Route path="/freelancer/find" element={<ListFreeLancer />} />"
         <Route path="/chat/:id" element={<ChatComponet />} />"
+        <Route path="/client/profile" element={<ClientProfile />} />"
+        <Route path="/freelancer/profile" element={<FreelancerProfile/>} />"
       </Routes>
     </>
   );

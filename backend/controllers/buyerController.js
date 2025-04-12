@@ -46,13 +46,30 @@ export async function getMyOrders(req, res) {
 export async function addPaymentMethod(req, res) {
   try {
     const { type, details } = req.body;
-    const buyer = await ClientModel.findById(req.user.id);
+
+    console.log("Auth user ID:", req.user?.id); // Check this value
+    const buyer = await ClientModel.findById(req.user?.id);
+
+    if (!buyer) {
+      console.error("Buyer not found");
+      return res.status(404).json({ error: "Buyer not found" });
+    }
+
+    console.log("Buyer found:", buyer);
+
+    // Check if paymentMethods exists
+    if (!Array.isArray(buyer.paymentMethods)) {
+      console.log("paymentMethods was undefined. Initializing...");
+      buyer.paymentMethods = [];
+    }
 
     buyer.paymentMethods.push({
       type,
       details,
       isDefault: buyer.paymentMethods.length === 0,
     });
+
+    console.log("Updated paymentMethods:", buyer.paymentMethods);
 
     await buyer.save();
 
@@ -61,9 +78,11 @@ export async function addPaymentMethod(req, res) {
       data: buyer.paymentMethods,
     });
   } catch (error) {
+    console.error("Error in addPaymentMethod:", error);
     res.status(500).json({ error: error.message });
   }
 }
+
 
 export async function getFavorites(req, res) {
   try {
