@@ -36,7 +36,9 @@ export function Navbar() {
     // Get user's first initial if logged in
     if (token) {
       try {
+
         const userData = localStorage.getItem("user");
+
         if (userData) {
           const user = JSON.parse(userData);
           setUserRole(user.role);

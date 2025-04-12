@@ -70,16 +70,23 @@ const freelancerSchema = new mongoose.Schema(
     },
     portfolio: [
       {
-        title: String,
-        description: String,
-        images: [String],
-        link: String,
-        category: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Category",
-        },
+
+        title: {
+              type: String,
+              required: [true, "Project name is required"],
+          },
+          techStack: {
+              type: [String], // Array of strings for tech stack
+              required: [true, "Tech stack is required"],
+          },
+          description: {
+              type: String,
+              required: [true, "Description is required"],
+          },
+          link: String,
+          category: String,
       },
-    ],
+  ],
     education: [
       {
         institution: String,
