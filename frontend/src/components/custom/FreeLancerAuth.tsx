@@ -131,7 +131,7 @@ export const FreelancerAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/freelancer/dashboard";
+          window.location.href = "/freelancer/find";
         }, 1500);
       }
     } catch (err: any) {
@@ -162,7 +162,7 @@ export const FreelancerAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/freelancer/dashboard";
+          window.location.href = "/freelancer/find";
         }, 1500);
       }
     } catch (err: any) {
