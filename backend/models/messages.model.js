@@ -50,6 +50,10 @@ const messageSchema = new mongoose.Schema(
       relatedId: mongoose.Schema.Types.ObjectId,
       additionalData: Object,
     },
+    contract: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Contract",
+    },
   },
   {
     timestamps: true,
