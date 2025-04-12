@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+
 import axios from "axios";
 import { useSocket } from "../../context/SocketContext";
 import { BACKEND_URL } from "../../config";
@@ -54,8 +55,15 @@ interface Conversation {
   unreadCount: number;
 }
 
+interface Contract {
+  description: string;
+  amount: number;
+  _id: string;
+}
+
 const ChatComponent: React.FC = () => {
   const { id: receiverId } = useParams<{ id: string }>();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -69,8 +77,33 @@ const ChatComponent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
+  const [isBookingInitialized, setIsBookingInitialized] = useState(true);
+  const [contractData, setContractData] = useState<Contract>({
+    description: "",
+    amount: 0,
+    _id: "",
+  });
 
+  const [clientId, setClientId] = useState("");
+  const [freelancerId, setFreelancerId] = useState("");
+
+  console.log(contractData);
+  const [isEditing, setIsEditing] = useState(false);
   console.log(user);
+
+  const userRole = user?.role;
+
+  console.log(userRole);
+  useEffect(() => {
+    // Only run this effect when user data is available
+    if (user && receiverId) {
+      const clientId = user.role === "client" ? user.id : receiverId;
+      const freelancerId = user.role === "freelancer" ? user.id : receiverId;
+
+      setClientId(clientId);
+      setFreelancerId(freelancerId);
+    }
+  }, [user, receiverId]); // Add proper dependencies
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -175,8 +208,29 @@ const ChatComponent: React.FC = () => {
     }
   };
 
-  const handleBooking = () => {
-    console.log({ description, amount });
+  const handleBooking = async () => {
+    const token = localStorage.getItem("token"); // or whatever key you used
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/contract`,
+        {
+          description,
+          amount,
+          freelancerId: freelancerId,
+          clientId: clientId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // 👈 Bearer Token here
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -204,6 +258,100 @@ const ChatComponent: React.FC = () => {
   const handleSelectConversation = (userId: string) => {
     navigate(`/chat/${userId}`);
   };
+
+  const getIsBookingInitialized = async () => {
+    try {
+      const token = localStorage.getItem("token"); // or whatever key you used
+      if (!token) return;
+
+      const response = await axios.post(
+        `${BACKEND_URL}/api/contract/check`,
+        {
+          freelancerId: user.id,
+          clientId: receiverId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // console.log(response.data);
+      setContractData(response.data.contract);
+      setIsBookingInitialized(response.data.success);
+    } catch (error: any) {
+      console.error(error);
+      console.error(error.message);
+    }
+  };
+
+  const handleUpdate = async () => {
+    setIsEditing(true);
+    const token = localStorage.getItem("token"); // or whatever key you used
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/contract/edit/${contractData._id}`,
+        {
+          description,
+          amount,
+          freelancerId: freelancerId,
+          clientId: clientId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // 👈 Bearer Token here
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      const contract = response.data.contract;
+
+      setContractData(contract);
+
+      if (response.data.success) setIsEditing(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAccept = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+
+      console.log(description, amount);
+      console.log(contractData._id);
+      const response = await axios.put(
+        `http://localhost:8000/api/contract/${contractData._id}`,
+        {
+          description: contractData.description,
+          amount: contractData.amount,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Contract approved successfully!");
+        setIsEditing(false);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+      console.error("Error approving contract:", error.message);
+      alert("Failed to approve contract.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getIsBookingInitialized();
+  }, [user]);
 
   useEffect(() => {
     if (user?.id) {
@@ -451,20 +599,24 @@ const ChatComponent: React.FC = () => {
                     )}
                   </div>
                 </div>
+                {/* In the chat header section, update the buttons section */}
                 <div className="flex gap-5">
-                  {user.role === "freelancer" && (
-                    <Dialog>
+                  {user.role === "freelancer" && !isBookingInitialized && (
+                    <Dialog open={open} onOpenChange={setOpen}>
                       <DialogTrigger asChild>
-                        <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
-                          Initialize Booking
+                        <Button
+                          className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]"
+                          onClick={() => setOpen(true)}
+                        >
+                          Create Proposal
                         </Button>
                       </DialogTrigger>
 
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Initialize Booking</DialogTitle>
+                          <DialogTitle>Create New Proposal</DialogTitle>
                           <DialogDescription>
-                            Provide the project details and amount.
+                            Provide the project details and proposed amount.
                           </DialogDescription>
                         </DialogHeader>
 
@@ -496,29 +648,97 @@ const ChatComponent: React.FC = () => {
                             onClick={handleBooking}
                             className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]"
                           >
-                            Confirm Booking
+                            Submit Proposal
                           </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   )}
-                  <Dialog>
-                    <DialogTrigger className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
-                      <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
-                        Second Button
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                        <DialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your account and remove your data from our
-                          servers.
-                        </DialogDescription>
-                      </DialogHeader>
-                    </DialogContent>
-                  </Dialog>
+
+                  {isBookingInitialized && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
+                          {user?.role === "freelancer"
+                            ? "Manage Proposal"
+                            : "View Proposal"}
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            {user?.role === "freelancer"
+                              ? "Manage Proposal"
+                              : "Contract Details"}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {user?.role === "freelancer"
+                              ? "Update or manage your project proposal."
+                              : "Review the project proposal details."}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 py-2">
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="description">Description</label>
+                            {isEditing ? (
+                              <Input
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                              />
+                            ) : (
+                              <p className="p-2 bg-gray-50 rounded">
+                                {contractData.description}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col space-y-1">
+                            <label htmlFor="amount">Amount</label>
+                            {isEditing ? (
+                              <Input
+                                id="amount"
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                              />
+                            ) : (
+                              <p className="p-2 bg-gray-50 rounded">
+                                ₹{contractData.amount}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <DialogFooter className="flex gap-2">
+                          {user?.role === "freelancer" && (
+                            <Button
+                              onClick={handleUpdate}
+                              disabled={loading}
+                              className="bg-[#007C4C] hover:bg-[#00663e]"
+                            >
+                              {loading
+                                ? "Updating..."
+                                : isEditing
+                                ? "Save Changes"
+                                : "Update Proposal"}
+                            </Button>
+                          )}
+                          {user?.role === "client" && (
+                            <Button
+                              onClick={handleAccept}
+                              disabled={loading}
+                              className="bg-emerald-600 hover:bg-emerald-700"
+                            >
+                              {loading ? "Processing..." : "Accept Proposal"}
+                            </Button>
+                          )}
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </div>
               </div>
             ) : (
