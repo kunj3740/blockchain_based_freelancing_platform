@@ -3,7 +3,7 @@ import axios from "axios";
 import { BACKEND_URL } from "../../config";
 
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, Search, Star, User, User2 } from "lucide-react";
+import { ArrowRight, Search, Star, User2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
@@ -80,10 +80,6 @@ export function ListFreeLancer() {
     setFilteredFreelancers(result);
   }, [searchQuery, selectedSkill, freelancers]);
 
-  // Get unique skills from all freelancers
-  const allSkills = Array.from(
-    new Set(freelancers.flatMap((freelancer) => freelancer.skills))
-  ).slice(0, 4); // Limit to 4 popular skills
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-b from-green-50 via-white to-white">
