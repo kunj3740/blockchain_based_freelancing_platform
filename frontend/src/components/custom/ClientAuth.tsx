@@ -92,7 +92,7 @@ export const ClientAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/client/find";
         }, 1500);
       }
     } catch (err: any) {
