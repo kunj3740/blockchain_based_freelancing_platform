@@ -70,23 +70,22 @@ const freelancerSchema = new mongoose.Schema(
     },
     portfolio: [
       {
-
         title: {
-              type: String,
-              required: [true, "Project name is required"],
-          },
-          techStack: {
-              type: [String], // Array of strings for tech stack
-              required: [true, "Tech stack is required"],
-          },
-          description: {
-              type: String,
-              required: [true, "Description is required"],
-          },
-          link: String,
-          category: String,
+          type: String,
+          required: [true, "Project name is required"],
+        },
+        techStack: {
+          type: [String], // Array of strings for tech stack
+          required: [true, "Tech stack is required"],
+        },
+        description: {
+          type: String,
+          required: [true, "Description is required"],
+        },
+        link: String,
+        category: String,
       },
-  ],
+    ],
     education: [
       {
         institution: String,
@@ -186,7 +185,7 @@ const freelancerSchema = new mongoose.Schema(
         ref: "Order",
       },
     ],
-    
+
     // Search visibility options
     searchProfile: {
       isVisible: {
@@ -198,10 +197,16 @@ const freelancerSchema = new mongoose.Schema(
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Portfolio",
-        }
+        },
       ],
     },
-    
+
+    contracts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Contract",
+      },
+    ],
     // Last activity timestamp for sorting by recently active
     lastActive: {
       type: Date,
@@ -214,42 +219,46 @@ const freelancerSchema = new mongoose.Schema(
 );
 
 // Update category metadata when a freelancer updates their categories
-freelancerSchema.pre('save', async function(next) {
+freelancerSchema.pre("save", async function (next) {
   try {
-    const CategoryModel = mongoose.model('Category');
-    
+    const CategoryModel = mongoose.model("Category");
+
     // If categories field was modified
-    if (this.isModified('categories')) {
+    if (this.isModified("categories")) {
       // Get previously saved document
       let oldCategories = [];
       if (this._id) {
-        const oldDoc = await mongoose.model('Freelancer').findById(this._id);
+        const oldDoc = await mongoose.model("Freelancer").findById(this._id);
         if (oldDoc) {
           oldCategories = oldDoc.categories || [];
         }
       }
-      
+
       // Find categories to remove and add
-      const categoriesToRemove = oldCategories.filter(cat => 
-        !this.categories.some(newCat => newCat.toString() === cat.toString())
+      const categoriesToRemove = oldCategories.filter(
+        (cat) =>
+          !this.categories.some(
+            (newCat) => newCat.toString() === cat.toString()
+          )
       );
-      
-      const categoriesToAdd = this.categories.filter(cat => 
-        !oldCategories.some(oldCat => oldCat.toString() === cat.toString())
+
+      const categoriesToAdd = this.categories.filter(
+        (cat) =>
+          !oldCategories.some((oldCat) => oldCat.toString() === cat.toString())
       );
-      
+
       // Update each category's freelancers array and metadata
       for (const catId of categoriesToRemove) {
         const category = await CategoryModel.findById(catId);
         if (category) {
           // Remove freelancer from category's freelancers array
           category.freelancers = category.freelancers.filter(
-            id => id.toString() !== this._id.toString()
+            (id) => id.toString() !== this._id.toString()
           );
           await category.updateMetadata();
         }
       }
-      
+
       for (const catId of categoriesToAdd) {
         const category = await CategoryModel.findById(catId);
         if (category) {
@@ -261,9 +270,9 @@ freelancerSchema.pre('save', async function(next) {
         }
       }
     }
-    
+
     // If hourly rate was modified, update metadata for all categories
-    if (this.isModified('hourlyRate') || this.isModified('accountLevel')) {
+    if (this.isModified("hourlyRate") || this.isModified("accountLevel")) {
       for (const catId of this.categories) {
         const category = await CategoryModel.findById(catId);
         if (category) {
@@ -271,7 +280,7 @@ freelancerSchema.pre('save', async function(next) {
         }
       }
     }
-    
+
     next();
   } catch (err) {
     next(err);
@@ -279,28 +288,28 @@ freelancerSchema.pre('save', async function(next) {
 });
 
 // Update lastActive timestamp when the freelancer logs in or performs an action
-freelancerSchema.methods.updateActivity = function() {
+freelancerSchema.methods.updateActivity = function () {
   this.lastActive = new Date();
   return this.save();
 };
 
 // Clean up category references when a freelancer is deleted
-freelancerSchema.pre('remove', async function(next) {
+freelancerSchema.pre("remove", async function (next) {
   try {
-    const CategoryModel = mongoose.model('Category');
-    
+    const CategoryModel = mongoose.model("Category");
+
     // Update each category's freelancers array and metadata
     for (const catId of this.categories) {
       const category = await CategoryModel.findById(catId);
       if (category) {
         // Remove freelancer from category's freelancers array
         category.freelancers = category.freelancers.filter(
-          id => id.toString() !== this._id.toString()
+          (id) => id.toString() !== this._id.toString()
         );
         await category.updateMetadata();
       }
     }
-    
+
     next();
   } catch (err) {
     next(err);

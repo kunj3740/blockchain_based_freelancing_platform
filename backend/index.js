@@ -11,6 +11,7 @@ import categoryRoute from "./routes/category.route.js";
 import orderRoute from "./routes/order.route.js";
 import buyerRoute from "./routes/buyer.route.js";
 import messageRoute from "./routes/message.route.js";
+import contractRoute from "./routes/contract.route.js";
 import { io, app, server } from "./lib/socket.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use("/api/gigs", gitRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/categories", categoryRoute);
 app.use("/api/messages", messageRoute);
+app.use("/api/contract", contractRoute);
 
 // Routes
 app.get("/", (req, res) => {

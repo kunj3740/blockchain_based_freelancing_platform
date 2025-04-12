@@ -11,8 +11,10 @@ import {
   getActiveContracts,
   getCompletedContracts,
   getPendingApprovalContracts,
+  checkContract,
+  editContract,
 } from "../controllers/contractController.js";
-import {auth as  authenticate } from "../middleware/auth.js";
+import { auth as authenticate } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -21,6 +23,10 @@ router.use(authenticate);
 
 // Create a new contract
 router.post("/", createContract);
+
+router.post("/check", checkContract);
+
+router.post("/edit/:id", editContract);
 
 // Get a specific contract by ID
 router.get("/:id", getContract);

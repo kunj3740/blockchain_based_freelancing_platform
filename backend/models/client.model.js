@@ -72,6 +72,12 @@ const buyerSchema = new mongoose.Schema(
         isDefault: Boolean,
       },
     ],
+    contracts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Contract",
+      },
+    ],
   },
   {
     timestamps: true,
