@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../../config";
-import { Link } from "react-router-dom";
-import { ArrowRight, Search, Star, User2 } from "lucide-react";
+
+import { Link, useLocation } from "react-router-dom";
+import { ArrowRight, Search, Star, User, User2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
@@ -18,15 +19,19 @@ interface Freelancer {
 }
 
 export function ListFreeLancer() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q") || "";
   const [freelancers, setFreelancers] = useState<Freelancer[]>([]);
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>(
     []
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(q);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
   const fetchFreelancers = async () => {
     try {
+      
       const token = localStorage.getItem("token");
 
       const response = await axios.get<{ data: Freelancer[] }>(
@@ -137,13 +142,7 @@ export function ListFreeLancer() {
             >
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  {freelancer.avatar ? (
-                    <img
-                      src={freelancer.avatar}
-                      alt={`${freelancer.firstName} ${freelancer.lastName}`}
-                      className="h-16 w-16 rounded-full object-cover border-2 border-green-100"
-                    />
-                  ) : (
+                  { (
                     <div className="flex items-center justify-center h-16 w-16 rounded-full bg-green-50 border-2 border-green-100">
                       <User2 className="h-8 w-8 text-green-600" />
                     </div>
