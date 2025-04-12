@@ -123,7 +123,7 @@ export const ClientAuth = () => {
 
         // Redirect or update state as needed
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/freelancer/find";
         }, 1500);
       }
     } catch (err: any) {
