@@ -1,21 +1,33 @@
-// import axios from "axios";
-// import { useEffect } from "react";
+import axios from "axios";
+import { useEffect } from "react";
+import { BACKEND_URL } from "../../config";
 
-// const ListClient = () => {
-//   const fetchAllClinet = async () => {
-//     try {
-//       const response = await axios.get(`${}`)
-//       console.log(response)
-//     } catch (error) {
+const ListClient = () => {
+  const fetchAllClient = async () => {
+    try {
+      const token = localStorage.getItem("token"); // get token from localStorage
 
-//     }
-//   }
-//   useEffect(() => {
-//   fetchAllClinet()
+      const response = await axios.get(
+        `${BACKEND_URL}/api/buyers/getAllClients`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-//    },
-//   [])
-//   return <div>ListClient</div>;
-// };
+      console.log(response.data);
+    } catch (error) {
+      console.log("Error fetching clients:", error);
+    }
+  };
 
-// export default ListClient;
+  useEffect(() => {
+    fetchAllClient();
+  }, []);
+
+  return <div>ListClient</div>;
+};
+
+export default ListClient;
