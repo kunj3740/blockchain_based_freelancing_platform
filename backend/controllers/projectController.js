@@ -59,6 +59,7 @@ export async function createProject(req, res) {
   // Validate request
 
   console.log("enter")
+  const { clientAddress, freelancerAddress, description } = req.body;
   console.log("REQ HEADERS:", req.headers);
 console.log("REQ BODY:", req.body);
 

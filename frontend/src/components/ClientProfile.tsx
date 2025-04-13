@@ -121,7 +121,7 @@ export function ClientProfile() {
         setLoading(true);
         try {
           const token = localStorage.getItem("token");
-          console.log(user.data)
+          console.log(user?.data)
           // Call your API to update the user's MetaMask address
           const response = await axios.post(`${BACKEND_URL}/api/buyers/wallet`, {
             metamaskId : walletAddressInput,

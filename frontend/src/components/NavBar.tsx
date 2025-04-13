@@ -106,7 +106,7 @@ export function Navbar() {
             </div>
             
             {/* Juror Dashboard Button - only show if user is a juror */}
-            {isLoggedIn && jurorStatus && jurorStatus.isAvailable && (
+            {/* {isLoggedIn && jurorStatus && jurorStatus.isAvailable && (
               <div className="ml-6">
                 <Button 
                   variant="outline" 
@@ -133,7 +133,7 @@ export function Navbar() {
                   Juror Dashboard
                 </Button>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
@@ -222,7 +222,7 @@ export function Navbar() {
                   </Button>
                   
                   {/* Mobile Juror Dashboard button - only show if user is a juror */}
-                  {jurorStatus && jurorStatus.isAvailable && (
+                  {/* {jurorStatus && jurorStatus.isAvailable && (
                     <Button
                       className="w-full flex items-center justify-center gap-2"
                       variant="outline"
@@ -247,7 +247,7 @@ export function Navbar() {
                       </svg>
                       Juror Dashboard
                     </Button>
-                  )}
+                  )} */}
                   
                   <Button
                     className="w-full flex items-center justify-center gap-2"

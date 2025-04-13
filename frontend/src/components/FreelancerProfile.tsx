@@ -17,7 +17,7 @@ interface FreelancerFormData {
     email: string;
     professionalTitle: string;
     description: string;
-    metamaskid : string;
+    metamaskid: string;
     skills: string[];
     hourlyRate: number;
     country: string;
@@ -85,7 +85,7 @@ export function FreelancerProfile() {
     const [showExperienceModal, setShowExperienceModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showWalletModal, setShowWalletModal] = useState(false);
-const [walletAddressInput, setWalletAddressInput] = useState("");
+    const [walletAddressInput, setWalletAddressInput] = useState("");
 
 
 
@@ -118,7 +118,7 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
 
     // Add these handlers
 
-    
+
 
     const handleAddPortfolio = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -160,42 +160,42 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
     const handleConnectWallet = () => {
         setWalletAddressInput("");
         setShowWalletModal(true);
-      };
+    };
 
-      const handleWalletSubmit = async (e: React.FormEvent) => {
+    const handleWalletSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-          const token = localStorage.getItem("token");
-          
-          // Call your API to update the user's MetaMask address
-          const response = await axios.post("http://localhost:8000/api/freelancers/wallet", {
-            metamaskId : walletAddressInput,
-            userId: user?._id
-          }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+            const token = localStorage.getItem("token");
+
+            // Call your API to update the user's MetaMask address
+            const response = await axios.post("http://localhost:8000/api/freelancers/wallet", {
+                metamaskId: walletAddressInput,
+                userId: user?._id
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                // Update the user state with the new wallet address
+                setUser(prev => ({
+                    ...prev!,
+                    metamaskId: walletAddressInput
+                }));
+                toast.success('Wallet connected successfully!');
+                setShowWalletModal(false);
+            } else {
+                toast.error('Failed to connect wallet.');
             }
-          });
-          
-          if (response.status === 200) {
-            // Update the user state with the new wallet address
-            setUser(prev => ({
-              ...prev!,
-              metamaskId: walletAddressInput
-            }));
-            toast.success('Wallet connected successfully!');
-            setShowWalletModal(false);
-          } else {
-            toast.error('Failed to connect wallet.');
-          }
         } catch (error) {
-          console.error("Error connecting wallet:", error);
-          toast.error('Failed to connect wallet. Please try again.');
+            console.error("Error connecting wallet:", error);
+            toast.error('Failed to connect wallet. Please try again.');
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     const handleAddEducation = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -309,7 +309,7 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
                     professionalTitle: data.data.professionalTitle || "",
                     description: data.data.description || "",
                     skills: data.data.skills || [],
-                    metamaskid : data.data.metamaskid || "",
+                    metamaskid: data.data.metamaskid || "",
                     hourlyRate: data.data.hourlyRate || 0,
                     country: data.data.country || "",
                     timezone: data.data.timezone || "",
@@ -438,38 +438,38 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
                 <div className="w-full md:w-3/4">
 
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="mb-4 flex items-center justify-between">
-  <TabsList className="mb-6">
-    <TabsTrigger value="profile">Profile</TabsTrigger>
-    <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-    <TabsTrigger value="education">Education</TabsTrigger>
-    <TabsTrigger value="experience">Experience</TabsTrigger>
-  </TabsList>
+                        <div className="mb-4 flex items-center justify-between">
+                            <TabsList className="mb-6">
+                                <TabsTrigger value="profile">Profile</TabsTrigger>
+                                <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                                <TabsTrigger value="education">Education</TabsTrigger>
+                                <TabsTrigger value="experience">Experience</TabsTrigger>
+                            </TabsList>
 
-  <div className="flex gap-4">
-    <button
-      onClick={handleConnectWallet}
-      disabled={loading || !!user?.metamaskid}
-      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
-    >
-      {user?.metamaskid ? 'Wallet Connected' : 'Connect Wallet'}
-    </button>
-    
-    {jurorStatus?.isAvailable ? 
-    (
-        <p className="mt-4 text-green-600 font-semibold">You're already a juror.</p>
-      )
-   :(
-      <button
-        onClick={() => setShowModal(true)}
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-      >
-        Become a Juror
-      </button>
-    ) }
-  </div>
-</div>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={handleConnectWallet}
+                                    disabled={loading || !!user?.metamaskid}
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
+                                >
+                                    {user?.metamaskid ? 'Wallet Connected' : 'Connect Wallet'}
+                                </button>
+
+                                {/* {jurorStatus?.isAvailable ?
+                                    (
+                                        <p className="mt-4 text-green-600 font-semibold">You're already a juror.</p>
+                                    )
+                                    : (
+                                        <button
+                                            onClick={() => setShowModal(true)}
+                                            disabled={loading}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                                        >
+                                            Become a Juror
+                                        </button>
+                                    )} */}
+                            </div>
+                        </div>
 
 
                         {/* Profile Tab */}
@@ -946,42 +946,42 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
                 </div>
             )}
             {/* Wallet Connection Modal */}
-{showWalletModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <Card className="w-full max-w-lg mx-4">
-      <CardHeader>
-        <CardTitle>Connect MetaMask Wallet</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleWalletSubmit}>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="walletAddress">MetaMask Wallet Address</Label>
-              <Input
-                id="walletAddress"
-                value={walletAddressInput}
-                onChange={(e) => setWalletAddressInput(e.target.value)}
-                placeholder="0x..."
-                required
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Enter your MetaMask wallet address to connect it to your account.
-              </p>
-            </div>
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={() => setShowWalletModal(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Connecting..." : "Connect Wallet"}
-              </Button>
-            </div>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  </div>
-)}
+            {showWalletModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <Card className="w-full max-w-lg mx-4">
+                        <CardHeader>
+                            <CardTitle>Connect MetaMask Wallet</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleWalletSubmit}>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="walletAddress">MetaMask Wallet Address</Label>
+                                        <Input
+                                            id="walletAddress"
+                                            value={walletAddressInput}
+                                            onChange={(e) => setWalletAddressInput(e.target.value)}
+                                            placeholder="0x..."
+                                            required
+                                        />
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            Enter your MetaMask wallet address to connect it to your account.
+                                        </p>
+                                    </div>
+                                    <div className="flex justify-end space-x-2 mt-4">
+                                        <Button variant="outline" onClick={() => setShowWalletModal(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit" disabled={loading}>
+                                            {loading ? "Connecting..." : "Connect Wallet"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
