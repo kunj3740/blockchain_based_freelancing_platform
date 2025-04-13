@@ -26,11 +26,13 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+
 // Routes
 app.use("/api/auth", authRoute);
 app.use("/api/buyers", buyerRoute);
 app.use("/api/freelancers", freelancerRoutes);
 app.use("/api/gigs", gitRoute);
+app.use("/api/projects",projectRoutes)
 app.use("/api/orders", orderRoute);
 app.use("/api/categories", categoryRoute);
 app.use("/api/messages", messageRoute);
