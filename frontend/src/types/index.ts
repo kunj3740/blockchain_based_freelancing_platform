@@ -22,6 +22,7 @@ export interface PaymentMethod {
     country: string;
     city: string;
     address: string;
+    metamaskid :  string,
     avatar: string;
     orders: Order[];
     favorites: any[];

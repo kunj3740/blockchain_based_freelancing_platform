@@ -34,7 +34,9 @@ const buyerSchema = new mongoose.Schema(
       type: String,
       default: "default-avatar.png",
     },
-
+    metamaskid : {
+      type: String,
+    },
     country: {
       type: String,
       required: true,

@@ -175,6 +175,38 @@ export async function removeFromFavorites(req, res) {
   }
 }
 
+export async function addWallet (req, res) {
+  try {
+    console.log(req.body)
+    const { metamaskId,userId } = req.body;
+    // Check if metamaskId is provided in the request
+    if (!metamaskId) {
+      return res.status(400).json({ message: "Metamask ID is required" });
+    }
+    console.log(metamaskId)
+    console.log(userId)
+    // Find freelancer by email (assuming email is unique)
+    const buyer = await ClientModel.findById(userId);
+    console.log(buyer)
+    // If freelancer not found, return an error
+    if (!buyer) {
+      return res.status(404).json({ message: "Freelancer not found" });
+    }
+
+    // Update freelancer's metamaskId
+    buyer.metamaskid = metamaskId;
+
+    // Save the freelancer document
+    await buyer.save();
+    console.log(buyer)
+    // Return success response
+    res.status(200).json({ message: "Metamask ID added successfully", buyer });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // export async function createReview(req, res) {
 //   try {
 //     const { orderId, rating, comment } = req.body;

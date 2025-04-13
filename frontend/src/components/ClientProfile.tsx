@@ -27,11 +27,14 @@ export function ClientProfile() {
     const [user, setUser] = useState<ClientUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
+    const [showWalletModal, setShowWalletModal] = useState(false);
+    const [walletAddressInput, setWalletAddressInput] = useState("");
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
         phoneNumber: "",
+        
         country: "",
         city: "",
         address: ""
@@ -75,7 +78,7 @@ export function ClientProfile() {
                     throw new Error("No authentication token found");
                 }
 
-                const response = await axios.get(`${BACKEND_URL}/api/client/profile`, {
+                const response = await axios.get(`${BACKEND_URL}/api/buyers/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -83,7 +86,7 @@ export function ClientProfile() {
                 
                 // Fetch orders if available    
                 if (response.data.orders && response.data.orders.length > 0) {
-                    const ordersResponse = await axios.get(`${BACKEND_URL}/api/client/orders`, {
+                    const ordersResponse = await axios.get(`${BACKEND_URL}/api/buyers/orders`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setOrders(ordersResponse.data);
@@ -91,7 +94,7 @@ export function ClientProfile() {
 
                 // Fetch favorites if available
                 if (response.data.favorites && response.data.favorites.length > 0) {
-                    const favoritesResponse = await axios.get(`${BACKEND_URL}/api/client/favorites`, {
+                    const favoritesResponse = await axios.get(`${BACKEND_URL}/api/buyers/favorites`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setFavorites(favoritesResponse.data);
@@ -108,6 +111,45 @@ export function ClientProfile() {
         fetchUserData();
     }, []);
 
+    const handleConnectWallet = () => {
+        setWalletAddressInput("");
+        setShowWalletModal(true);
+      };
+
+      const handleWalletSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+          const token = localStorage.getItem("token");
+          console.log(user.data)
+          // Call your API to update the user's MetaMask address
+          const response = await axios.post(`${BACKEND_URL}/api/buyers/wallet`, {
+            metamaskId : walletAddressInput,
+            userId: user?.data._id
+          }, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (response.status === 200) {
+            // Update the user state with the new wallet address
+            setUser(prev => ({
+              ...prev!,
+              metamaskId: walletAddressInput
+            }));
+            toast.success('Wallet connected successfully!');
+            setShowWalletModal(false);
+          } else {
+            toast.error('Failed to connect wallet.');
+          }
+        } catch (error) {
+          console.error("Error connecting wallet:", error);
+          toast.error('Failed to connect wallet. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      };
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -243,7 +285,16 @@ export function ClientProfile() {
                             <TabsTrigger value="favorites" className="py-2 px-4">Favorites</TabsTrigger>
                             <TabsTrigger value="payment" className="py-2 px-4">Payment Methods</TabsTrigger>
                         </TabsList>
-
+                        <div className="flex gap-4">
+    <button
+      onClick={handleConnectWallet}
+      disabled={loading || !!user?.metamaskid}
+      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition disabled:opacity-50"
+    >
+      {user?.metamaskid ? 'Wallet Connected' : 'Connect Wallet'}
+    </button>
+    
+  </div>
                         {/* Profile Tab */}
                         <TabsContent value="profile">
                             <Card className="shadow-md">
@@ -676,6 +727,42 @@ export function ClientProfile() {
                     </Card>
                 </div>
             )}
+            {showWalletModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <Card className="w-full max-w-lg mx-4">
+      <CardHeader>
+        <CardTitle>Connect MetaMask Wallet</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleWalletSubmit}>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="walletAddress">MetaMask Wallet Address</Label>
+              <Input
+                id="walletAddress"
+                value={walletAddressInput}
+                onChange={(e) => setWalletAddressInput(e.target.value)}
+                placeholder="0x..."
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Enter your MetaMask wallet address to connect it to your account.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button variant="outline" onClick={() => setShowWalletModal(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Connecting..." : "Connect Wallet"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+)}
         </div>
     );
 }

@@ -13,6 +13,7 @@ import {
   addToFavorites,
   removeFromFavorites,
   getAllClient,
+  addWallet
   // createReview,
 } from "../controllers/buyerController.js";
 
@@ -26,7 +27,7 @@ router.post("/getAllClients", auth, getAllClient);
 router.get("/orders", auth, isBuyer, getMyOrders);
 // router.get("/payments", auth, isBuyer, getPaymentHistory);
 router.post("/payment-methods", auth, isBuyer, addPaymentMethod);
-
+router.post('/wallet', addWallet);
 // Favorites & Reviews
 router.get("/favorites", auth, isBuyer, getFavorites);
 router.post("/favorites/:gigId", auth, isBuyer, addToFavorites);

@@ -57,24 +57,29 @@ export async function getProjectsCount(req, res) {
 // Create a new project
 export async function createProject(req, res) {
   // Validate request
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      errors: errors.array()
-    });
-  }
+
+  console.log("enter")
+  console.log("REQ HEADERS:", req.headers);
+console.log("REQ BODY:", req.body);
+
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     errors: errors.array()
+  //   });
+  // }
   
   try {
     const { clientAddress, freelancerAddress, description } = req.body;
-    
+    console.log(req.body)
     // Call blockchain service to create project
     const result = await createProject(
       clientAddress,
       freelancerAddress,
       description
     );
-    
+    console.log(result)
     res.status(201).json({
       success: true,
       message: 'Project created successfully',
