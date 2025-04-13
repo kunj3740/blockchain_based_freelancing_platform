@@ -1,36 +1,58 @@
-import express from 'express';
+import express from "express";
 
-import  { createProjectValidation, fundProjectValidation, projectIdValidation, updatePercentageValidation } from '../middleware/validation.js';
-import { createProject, fundProject, getProject, getProjectsCount, markProjectCompleted, raiseDispute, releasePayment, resolveDisputeByPercentage, updateCompletionPercentage } from '../controllers/projectController.js';
+import {
+  createProjectValidation,
+  fundProjectValidation,
+  projectIdValidation,
+  updatePercentageValidation,
+} from "../middleware/validation.js";
+import {
+  createProject,
+  fundProject,
+  getProject,
+  getProjectsCount,
+  markProjectCompleted,
+  raiseDispute,
+  releasePayment,
+  resolveDisputeByPercentage,
+  updateCompletionPercentage,
+} from "../controllers/projectController.js";
 
 const router = express.Router();
 
 // Get projects count
-router.get('/count', getProjectsCount);
+router.get("/count", getProjectsCount);
 
 // Get project details
-router.get('/:id', projectIdValidation,getProject);
+router.get("/:id", getProject);
 
 // Create a new project
-router.post('/',createProjectValidation, createProject);
+router.post("/", createProject);
 
 // Fund a project
-router.post('/:id/fund', fundProjectValidation, fundProject
-);
+router.post("/:id/fund", fundProject);
 
 // Update completion percentage
-router.put('/:id/percentage', updatePercentageValidation, updateCompletionPercentage);
+router.put(
+  "/:id/percentage",
+  updatePercentageValidation,
+  updateCompletionPercentage
+);
 
 // Mark project as completed
-router.put('/:id/complete', projectIdValidation, markProjectCompleted);
+router.put("/:id/complete", projectIdValidation, markProjectCompleted);
 
 // Release payment
-router.post('/:id/pay', projectIdValidation, releasePayment);
+router.post("/:id/pay", projectIdValidation, releasePayment);
 
 // Raise dispute
-router.post('/:id/dispute',projectIdValidation, raiseDispute);
+router.post("/:id/dispute", projectIdValidation, raiseDispute);
 
 // Resolve dispute by percentage
-router.post('/:id/resolve-dispute', projectIdValidation, resolveDisputeByPercentage);
+router.post(
+  "/:id/resolve-dispute",
+  projectIdValidation,
+  resolveDisputeByPercentage
+);
 
 export default router;
