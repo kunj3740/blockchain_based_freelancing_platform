@@ -54,6 +54,14 @@ const contractSchema = new mongoose.Schema(
       refPath: "Buyer",
       required: true,
     },
+    deleteByClient: {
+      type: Boolean,
+      default: false,
+    },
+    deleteByFreelancer: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

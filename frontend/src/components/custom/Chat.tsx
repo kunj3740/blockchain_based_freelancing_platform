@@ -5,11 +5,12 @@ import React, {
   useEffect,
   useRef,
 } from "react";
+import { Delete } from "lucide-react";
 
 import axios from "axios";
 import { useSocket } from "../../context/SocketContext";
 import { BACKEND_URL } from "../../config";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useNavigation } from "react-router-dom";
 import { Send, Search, Smile } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -330,11 +331,35 @@ const ChatComponent: React.FC = () => {
       setTaskHeading("");
       setTaskDescription("");
       setTaskPercent(0);
+      setOpen(false);
     } catch (err: any) {
       console.error("Error adding task:", err);
       // alert(err.response?.data?.error || "Failed to add task");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!contractData?._id) {
+      toast.error("Failed to delete");
+      return;
+    }
+    const token = localStorage.getItem("token"); // or whatever key you used
+
+    try {
+      const respone = await axios.delete(
+        `${BACKEND_URL}/api/contract/${contractData?._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(respone);
+      if (respone.status === 200) navigate("/");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -795,6 +820,17 @@ const ChatComponent: React.FC = () => {
                     </Dialog>
                   )}
 
+                  {contractData?.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      className="flex items-center gap-2 rounded-2xl px-4 py-2 shadow hover:scale-105 transition-transform"
+                      onClick={handleDelete}
+                    >
+                      Cancle Contract
+                      <Delete className="w-4 h-4" />
+                    </Button>
+                  )}
+
                   {allTasks && (
                     <ViewTaskDialog
                       contractData={allTasks}
@@ -803,7 +839,7 @@ const ChatComponent: React.FC = () => {
                     />
                   )}
                   {(isBookingInitialized || contractData) && (
-                    <Dialog>
+                    <Dialog open={open} onOpenChange={setOpen}>
                       <DialogTrigger asChild>
                         <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
                           {user?.role === "freelancer"
