@@ -468,40 +468,47 @@ export const deleteContract = async (req, res, next) => {
       return next(createError(404, "Contract not found"));
     }
 
-    // Check if contract is already approved
-    if (contract.isApproved) {
-      return next(createError(400, "Cannot delete an approved contract"));
-    }
+    // // Check if contract is already approved
+    // if (contract.isApproved) {
+    //   return next(createError(400, "Cannot delete an approved contract"));
+    // }
 
     // Check if user is authorized to delete this contract
     if (
-      req.user.id.toString() !== contract.createdBy.toString() &&
-      req.user.id.toString() !== contract.client.toString()
+      req.user._id.toString() !== contract.freelancer.toString() &&
+      req.user._id.toString() !== contract.client.toString()
     ) {
       return next(
         createError(403, "You are not authorized to delete this contract")
       );
     }
 
-    // Update the message to remove contract reference
-    await Message.findByIdAndUpdate(
-      contract.message,
-      {
-        $unset: { contract: "" },
-        $set: {
-          "metadata.type": "text",
-          "metadata.relatedId": null,
-        },
-      },
-      { session }
-    );
+    // Set the appropriate flag based on user role
+    let updateFields = {};
+    if (req.user.role === "freelancer") {
+      console.log("hello");
+      updateFields.deleteByFreelancer = true;
+    } else if (req.user.role === "client" || req.user.role === "buyer") {
+      updateFields.deleteByClient = true;
+    }
 
-    // Delete the contract
-    await Contract.findByIdAndDelete(req.params.id, { session });
+    // Update the contract with the delete flag
+    const updatedContract = await Contract.findByIdAndUpdate(req.params.id, {
+      $set: updateFields,
+    });
 
-    await session.commitTransaction();
+    console.log(updateFields);
+    console.log(updatedContract);
 
-    res.status(200).json({ message: "Contract deleted successfully" });
+    // Check if both parties have marked for deletion
+    if (updatedContract.deleteByFreelancer && updatedContract.deleteByClient) {
+      // Update the message to remove contract reference if it exists
+
+      const deletedContract = await Contract.findByIdAndDelete(contract._id);
+      console.log(deletedContract);
+
+      res.status(200).json({ message: "Contract deleted successfully" });
+    }
   } catch (err) {
     await session.abortTransaction();
     next(err);
@@ -509,7 +516,6 @@ export const deleteContract = async (req, res, next) => {
     session.endSession();
   }
 };
-
 // Approve a contract (only client can approve)
 export const approveContract = async (req, res, next) => {
   try {

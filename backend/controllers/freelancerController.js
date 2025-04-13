@@ -11,7 +11,7 @@ export async function getProfile(req, res) {
       .populate("education") // Populating education items
       .populate("experience") // Populating experience items
       .populate("categories") // Populating categories if needed
-      .populate("activeGigs") // Populating active gigs if needed
+      // .populate("activeGigs") // Populating active gigs if needed
       .populate("activeOrders"); // Populating active orders if needed
 
     res.json({
@@ -39,7 +39,8 @@ export async function addEducation(req, res) {
     await freelancer.save();
 
     // Return the last added education entry
-    const addedEducation = freelancer.education[freelancer.education.length - 1];
+    const addedEducation =
+      freelancer.education[freelancer.education.length - 1];
     console.log("Added education:", addedEducation);
     res.status(200).json(addedEducation);
   } catch (error) {
@@ -49,18 +50,23 @@ export async function addEducation(req, res) {
 
 // Add experience
 export const addExperience = async (req, res) => {
-  const { title, company, location, startDate, endDate, description, current } = req.body;
+  const { title, company, location, startDate, endDate, description, current } =
+    req.body;
 
   // Validate the input data
   if (!title || !company || !location || !startDate) {
-    return res.status(400).json({ message: 'Title, company, location, and start date are required.' });
+    return res
+      .status(400)
+      .json({
+        message: "Title, company, location, and start date are required.",
+      });
   }
 
   try {
     const freelancerId = req.user._id;
     const freelancer = await FreelancerModel.findById(freelancerId);
     if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found.' });
+      return res.status(404).json({ message: "Freelancer not found." });
     }
 
     // Create the new experience object
@@ -81,7 +87,7 @@ export const addExperience = async (req, res) => {
     // Return the updated experience
     res.status(201).json(newExperience);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add experience' });
+    res.status(500).json({ message: "Failed to add experience" });
   }
 };
 
@@ -89,17 +95,21 @@ export const addExperience = async (req, res) => {
 export const addPortfolioItem = async (req, res) => {
   console.log("Adding portfolio item:", req.body);
   const { title, techStack, description, images, link, category } = req.body;
-  
+
   // Validate the input data
   if (!title || !description) {
-    return res.status(400).json({ message: 'Project name, tech stack, and description are required.' });
+    return res
+      .status(400)
+      .json({
+        message: "Project name, tech stack, and description are required.",
+      });
   }
 
   try {
     const freelancerId = req.user._id;
     const freelancer = await FreelancerModel.findById(freelancerId);
     if (!freelancer) {
-      return res.status(404).json({ message: 'Freelancer not found.' });
+      return res.status(404).json({ message: "Freelancer not found." });
     }
     console.log("Freelancer found:", freelancer);
     // Create the new portfolio item object
@@ -119,7 +129,7 @@ export const addPortfolioItem = async (req, res) => {
     // Return the updated portfolio item
     res.status(201).json(newPortfolioItem);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add portfolio item' });
+    res.status(500).json({ message: "Failed to add portfolio item" });
   }
 };
 
@@ -177,7 +187,8 @@ export async function getEarnings(req, res) {
         const key = `${year}-${month}`;
 
         earnings.total += order.payment.amount;
-        earnings.monthly[key] = (earnings.monthly[key] || 0) + order.payment.amount;
+        earnings.monthly[key] =
+          (earnings.monthly[key] || 0) + order.payment.amount;
       }
     });
 
