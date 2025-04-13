@@ -307,7 +307,7 @@ export async function addJuror (req, res) {
 
 export async function getJuror (req, res) {
   const { userId } = req.params;
-
+  console.log("Fetching juror:", userId);
   if (!userId) {
     return res.status(400).json({ message: 'User ID is required.' });
   }
@@ -315,9 +315,9 @@ export async function getJuror (req, res) {
   try {
     // Find juror by userId
     const juror = await JurorMOdel.findOne({ userId });
-
+    console.log("Juror found:", juror);
     if (!juror) {
-      return res.status(404).json({ message: 'Juror not found.' });
+      return res.status(200).json({ message: 'Juror not found.' });
     }
 
     // Return juror status and info

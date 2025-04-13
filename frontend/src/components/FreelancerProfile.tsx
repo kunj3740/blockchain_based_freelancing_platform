@@ -299,6 +299,8 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
                 if (jurorRes.status === 200) {
                     setJurorStatus(jurorRes.data); // set full juror object
                 }
+                console.log('Juror status:', jurorRes.data);
+                console.log(jurorRes.data)
                 setUser(data.data); // Assuming the response structure has a data field
                 setFormData({
                     firstName: data.data.firstName || "",
@@ -453,7 +455,11 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
       {user?.metamaskid ? 'Wallet Connected' : 'Connect Wallet'}
     </button>
     
-    {jurorStatus?.isAvailable ? (
+    {jurorStatus?.isAvailable ? 
+    (
+        <p className="mt-4 text-green-600 font-semibold">You're already a juror.</p>
+      )
+   :(
       <button
         onClick={() => setShowModal(true)}
         disabled={loading}
@@ -461,9 +467,7 @@ const [walletAddressInput, setWalletAddressInput] = useState("");
       >
         Become a Juror
       </button>
-    ) : (
-      <p className="mt-4 text-green-600 font-semibold">You're already a juror.</p>
-    )}
+    ) }
   </div>
 </div>
 

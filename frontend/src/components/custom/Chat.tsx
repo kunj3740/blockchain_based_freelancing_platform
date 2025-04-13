@@ -412,35 +412,51 @@ const ChatComponent: React.FC = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      // console.log(description, amount);
-      // console.log(contractData._id);
-      const response = await axios.put(
-        `http://localhost:8000/api/contract/${contractData?._id}`,
+      // First API call to update contract
+      // const contractResponse = await axios.put(
+      //   `http://localhost:8000/api/contract/${contractData?._id}`,
+      //   {
+      //     description: contractData?.description,
+      //     amount: contractData?.amount,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
+      // );
+
+      // Second API call to create project
+      const projectResponse = await axios.post(
+        'http://localhost:8000/api/projects/',
         {
-          description: contractData?.description,
-          amount: contractData?.amount,
+          clientAddress: contractData?.clientAddress || "0xfeA269e6e4C15Da4077a91ACA579845530127460", // Replace with actual client address
+          freelancerAddress: contractData?.freelancerAddress || "0x0fD93EfA38E1E3c3FB9da0337897d1c41fDe238F", // Replace with actual freelancer address
+          description: contractData?.description
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json', // ✅ Add this line
           },
         }
       );
 
-      console.log(response);
+      // console.log("Contract Response:", contractResponse);
+      console.log("Project Response:", projectResponse);
 
-      if (response.status === 200) {
-        const contract = response.data;
-        console.log(contract);
-        setContractData(contract);
-        toast.success("Contract approved successfully!");
-        setIsEditing(false);
-      }
+      // if (contractResponse.status === 200 && projectResponse.status === 200) {
+      //   const contract = contractResponse.data;
+      //   console.log(contract);
+      //   setContractData(contract);
+      //   toast.success("Contract approved and project created successfully!");
+      //   setIsEditing(false);
+      // }
     } catch (error: any) {
       console.log(error);
-      const errorMesage = error.response.data.error;
-      console.error("Error approving contract:", error.message);
-      toast.error(errorMesage || "Failed to approve contract.");
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error("Error in operation:", errorMessage);
+      toast.error(errorMessage || "Failed to complete the operation.");
     } finally {
       setLoading(false);
     }
