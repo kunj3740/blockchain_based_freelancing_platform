@@ -13,6 +13,9 @@ import {
   getPendingApprovalContracts,
   checkContract,
   editContract,
+  addContractTask,
+  getAddedTask,
+  editTaskData,
 } from "../controllers/contractController.js";
 import { auth as authenticate } from "../middleware/auth.js";
 
@@ -43,6 +46,8 @@ router.get("/status/completed", getCompletedContracts);
 // Get contracts pending approval
 router.get("/status/pending", getPendingApprovalContracts);
 
+router.post("/task/:id", editTaskData);
+
 // Update a contract (only creator or assigned freelancer can update)
 router.put("/:id", updateContract);
 
@@ -54,5 +59,9 @@ router.patch("/:id/approve", approveContract);
 
 // Mark a contract as completed (only client can mark as completed)
 router.patch("/:id/complete", completeContract);
+
+router.post("/:contractId/tasks", addContractTask);
+
+router.get("/:contractId/tasks", getAddedTask);
 
 export default router;
