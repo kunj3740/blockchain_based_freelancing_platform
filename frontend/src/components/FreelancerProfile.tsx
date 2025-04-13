@@ -57,6 +57,9 @@ interface ExperienceItem {
 
 export function FreelancerProfile() {
     const [user, setUser] = useState<FreelancerUser | null>(null);
+    const [jurorStatus, setJurorStatus] = useState<{ isAvailable: boolean } | null>(null); // Explicitly define type
+
+
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [formData, setFormData] = useState<FreelancerFormData>({
@@ -78,6 +81,9 @@ export function FreelancerProfile() {
     const [showPortfolioModal, setShowPortfolioModal] = useState(false);
     const [showEducationModal, setShowEducationModal] = useState(false);
     const [showExperienceModal, setShowExperienceModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+
+
 
     const [portfolioForm, setPortfolioForm] = useState<PortfolioItem>({
         title: '',
@@ -119,18 +125,18 @@ export function FreelancerProfile() {
                 },
                 body: JSON.stringify(portfolioForm)
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
-    
+
             setUser(prev => ({
                 ...prev!,
                 portfolio: [...(prev?.portfolio || []), data]
             }));
-    
+
             setShowPortfolioModal(false);
             setPortfolioForm({
                 title: '',
@@ -157,18 +163,18 @@ export function FreelancerProfile() {
                 },
                 body: JSON.stringify(educationForm)
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
-    
+
             setUser(prev => ({
                 ...prev!,
                 education: [...(prev?.education || []), data]
             }));
-    
+
             setShowEducationModal(false);
             setEducationForm({
                 institution: '',
@@ -196,18 +202,18 @@ export function FreelancerProfile() {
                 },
                 body: JSON.stringify(experienceForm)
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
-    
+
             setUser(prev => ({
                 ...prev!,
                 experience: [...(prev?.experience || []), data]
             }));
-    
+
             setShowExperienceModal(false);
             setExperienceForm({
                 title: '',
@@ -228,7 +234,7 @@ export function FreelancerProfile() {
             try {
                 const token = localStorage.getItem("token");
                 if (!token) throw new Error("No authentication token found");
-    
+
                 const response = await fetch('http://localhost:8000/api/freelancers/profile', {
                     method: 'GET',
                     headers: {
@@ -236,12 +242,17 @@ export function FreelancerProfile() {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-    
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch user data');
                 }
-    
+
                 const data = await response.json();
+                console.log('Fetched user data:', data.data);
+                const jurorRes = await axios.get(`http://localhost:8000/api/freelancers/juror/${data.data._id}`);
+                if(jurorRes.status === 200) {
+                    setJurorStatus(jurorRes.data); // set full juror object
+                }
                 setUser(data.data); // Assuming the response structure has a data field
                 setFormData({
                     firstName: data.data.firstName || "",
@@ -265,7 +276,7 @@ export function FreelancerProfile() {
                 setLoading(false);
             }
         };
-    
+
         fetchUserData();
     }, []);
 
@@ -297,7 +308,28 @@ export function FreelancerProfile() {
             toast.error("Failed to update profile. Please try again.");
         }
     };
-
+    const handleBecomeJuror = async () => {
+        setLoading(true);
+        try {
+          const res = await axios.post("http://localhost:8000/api/freelancers/juror", {
+            userId: user?._id
+          });
+        console.log(res);
+          if (res.status === 200) {
+            toast.success('You are now a juror!');
+            setShowModal(false);
+            // update UI if needed
+          } else {
+            toast.error('Something went wrong.');
+          }
+        } catch (err) {
+          console.error(err);
+          toast.error('Server error. Try again later.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Loading profile...</div>;
     }
@@ -355,13 +387,33 @@ export function FreelancerProfile() {
 
                 {/* Main content area */}
                 <div className="w-full md:w-3/4">
+
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
-                        <TabsList className="mb-6">
-                            <TabsTrigger value="profile">Profile</TabsTrigger>
-                            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-                            <TabsTrigger value="education">Education</TabsTrigger>
-                            <TabsTrigger value="experience">Experience</TabsTrigger>
-                        </TabsList>
+                        <div className="mb-4 flex items-center justify-between">
+                            <TabsList className="mb-6">
+                                <TabsTrigger value="profile">Profile</TabsTrigger>
+                                <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                                <TabsTrigger value="education">Education</TabsTrigger>
+                                <TabsTrigger value="experience">Experience</TabsTrigger>
+                            </TabsList>
+
+                            {/* Become a Juror Button */}
+                            {jurorStatus?.isAvailable ? (
+  <div className="mt-4">
+    <button
+      onClick={() => setShowModal(true)}
+      disabled={loading}
+      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+    >
+      Become a Juror
+    </button>
+  </div>
+) : (
+  <p className="mt-4 text-green-600 font-semibold">You're already a juror.</p>
+)}
+
+                        </div>
+
 
                         {/* Profile Tab */}
                         <TabsContent value="profile">
@@ -836,6 +888,31 @@ export function FreelancerProfile() {
                     </Card>
                 </div>
             )}
+            {showModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+      <h2 className="text-lg font-semibold mb-4">Become a Juror</h2>
+      <p className="text-gray-700 mb-4">
+        As a juror, you'll be randomly selected to help resolve disputes between freelancers and clients by reviewing evidence and casting your vote. You can earn a side income for your participation.
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleBecomeJuror}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Agree & Join
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         </div>
     );
 }

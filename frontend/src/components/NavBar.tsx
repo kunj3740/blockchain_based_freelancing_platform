@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { Menu, LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,8 @@ export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInitial, setUserInitial] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [userId, setUserId] = useState("");
+  const [jurorStatus, setJurorStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,15 +39,18 @@ export function Navbar() {
     // Get user's first initial if logged in
     if (token) {
       try {
-
         const userData = localStorage.getItem("user");
 
         if (userData) {
           const user = JSON.parse(userData);
+          console.log("User data:", user);
           setUserRole(user.role);
+          checkJurorStatus(user.id);
+          setUserId(user.id);
           if (user.firstName && user.firstName.length > 0) {
             setUserInitial(user.firstName.charAt(0).toUpperCase());
           }
+        
         }
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -53,10 +59,26 @@ export function Navbar() {
     }
   }, []);
 
+  const checkJurorStatus = async (userId : any) => {
+    if (userId) {
+      try {
+        const jurorRes = await axios.get(`http://localhost:8000/api/freelancers/juror/${userId}`);
+        if (jurorRes.status === 200) {
+          setJurorStatus(jurorRes.data);
+        }
+        console.log("Juror status:", jurorRes.data);
+      } catch (error) {
+        console.error("Error checking juror status:", error);
+        setJurorStatus(null);
+      }
+    }
+  };
+
   const handleLogout = () => {
     // Remove token from localStorage
     localStorage.removeItem("token");
     setIsLoggedIn(false);
+    setJurorStatus(null);
     navigate("/");
   };
 
@@ -68,16 +90,50 @@ export function Navbar() {
     }
   };
 
+  const handleJurorDashboardClick = () => {
+    navigate("/juror/dash");
+  };
+
   return (
     <nav className="border-b">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
-          <div className="flex">
+          <div className="flex items-center">
             <div className="flex flex-shrink-0 items-center">
               <Link to="/" className="text-2xl font-bold text-green-600">
                 FreeLance
               </Link>
             </div>
+            
+            {/* Juror Dashboard Button - only show if user is a juror */}
+            {isLoggedIn && jurorStatus && jurorStatus.isAvailable && (
+              <div className="ml-6">
+                <Button 
+                  variant="outline" 
+                  onClick={handleJurorDashboardClick}
+                  className="flex items-center"
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="mr-2 h-4 w-4" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="m22 12-4 4-1.3-1.3"/>
+                    <path d="m22 12-4-4-1.3 1.3"/>
+                    <path d="M12 20a8 8 0 1 1 0-16"/>
+                    <path d="M12 16v-4l3-2"/>
+                  </svg>
+                  Juror Dashboard
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
@@ -164,6 +220,35 @@ export function Navbar() {
                     <User className="h-4 w-4" />
                     Profile
                   </Button>
+                  
+                  {/* Mobile Juror Dashboard button - only show if user is a juror */}
+                  {jurorStatus && jurorStatus.isAvailable && (
+                    <Button
+                      className="w-full flex items-center justify-center gap-2"
+                      variant="outline"
+                      onClick={handleJurorDashboardClick}
+                    >
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="h-4 w-4" 
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      >
+                        <path d="m22 12-4 4-1.3-1.3"/>
+                        <path d="m22 12-4-4-1.3 1.3"/>
+                        <path d="M12 20a8 8 0 1 1 0-16"/>
+                        <path d="M12 16v-4l3-2"/>
+                      </svg>
+                      Juror Dashboard
+                    </Button>
+                  )}
+                  
                   <Button
                     className="w-full flex items-center justify-center gap-2"
                     variant="outline"

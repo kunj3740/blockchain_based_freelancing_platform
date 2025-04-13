@@ -1,6 +1,7 @@
 // controllers/freelancerController.js
 import FreelancerModel from "../models/freelancer.model.js";
 import OrderModel from "../models/order.model.js"; // Import for orders
+import JurorMOdel from "../models/juror.model.js";
 
 // Get freelancer profile
 export async function getProfile(req, res) {
@@ -11,7 +12,6 @@ export async function getProfile(req, res) {
       .populate("education") // Populating education items
       .populate("experience") // Populating experience items
       .populate("categories") // Populating categories if needed
-      .populate("activeGigs") // Populating active gigs if needed
       .populate("activeOrders"); // Populating active orders if needed
 
     res.json({
@@ -271,3 +271,64 @@ export async function getAllFreelancer(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+export async function addJuror (req, res) {
+  const { userId } = req.body;
+  console.log("Adding juror:", userId);
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required.' });
+  }
+
+  try {
+    // Check if already a juror
+    const existingJuror = await JurorMOdel.findOne({ userId });
+
+    if (existingJuror) {
+      existingJuror.isAvailable = true;
+      await existingJuror.save();
+      return res.status(200).json({ message: 'Juror status updated to available.' });
+    }
+
+    // Create a new juror
+    const newJuror = new JurorMOdel({
+      userId,
+      role: 'freelancer', // You can dynamically get role from user model if needed
+      isAvailable: true
+    });
+
+    await newJuror.save();
+    console.log("New juror added:", newJuror);
+    return res.status(201).json({ message: 'Juror created successfully.' });
+  } catch (error) {
+    console.error('Error adding juror:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+export async function getJuror (req, res) {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required.' });
+  }
+
+  try {
+    // Find juror by userId
+    const juror = await JurorMOdel.findOne({ userId });
+
+    if (!juror) {
+      return res.status(404).json({ message: 'Juror not found.' });
+    }
+
+    // Return juror status and info
+    res.status(200).json({
+      userId: juror.userId,
+      isAvailable: juror.isAvailable,
+      role: juror.role
+    });
+  } catch (error) {
+    console.error('Error fetching juror data:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+

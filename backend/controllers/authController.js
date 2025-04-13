@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import ClientModel from "../models/client.model.js";
 import FreelancerModel from "../models/freelancer.model.js";
 import bcrypt from "bcrypt";
+import CategoryModel from "../models/category.model.js";
 
 // Util to generate token
 function generateAuthToken(payload) {
@@ -92,6 +93,7 @@ export async function registerFreelancer(req, res) {
       lastName,
       professionalTitle,
       description,
+      category,
       skills,
       country,
       hourlyRate,
@@ -105,7 +107,19 @@ export async function registerFreelancer(req, res) {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    let categoryIds = [];
+    
+    if (Array.isArray(category)) {
+      // If category is already an array
+      const categoryDocs = await CategoryModel.find({ name: { $in: category } });
+      categoryIds = categoryDocs.map(cat => cat._id);
+    } else {
+      // If category is a single string
+      const categoryDoc = await CategoryModel.findOne({ name: category });
+      if (categoryDoc) {
+        categoryIds.push(categoryDoc._id);
+      }
+    }
     // Create new freelancer
     const freelancer = new FreelancerModel({
       email,
@@ -114,6 +128,7 @@ export async function registerFreelancer(req, res) {
       lastName,
       professionalTitle,
       description,
+      category :categoryIds,
       skills,
       country,
       hourlyRate,
@@ -122,7 +137,7 @@ export async function registerFreelancer(req, res) {
     console.log(freelancer);
 
     await freelancer.save();
-
+    console.log("Freelancer saved:", freelancer);
     // Generate auth token
     const token = generateAuthToken({
       _id: freelancer._id,
