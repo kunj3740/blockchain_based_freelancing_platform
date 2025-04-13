@@ -431,67 +431,69 @@ const ChatComponent: React.FC = () => {
     }
   };
 
+  // console.log(contractData?.length, "contractData");
+
   const handleAccept = async () => {
     console.log(contractData);
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
       // First API call to update contract
-      // const contractResponse = await axios.put(
-      //   `http://localhost:8000/api/contract/${contractData?._id}`,
+      const contractResponse = await axios.put(
+        `http://localhost:8000/api/contract/${contractData?._id}`,
+        {
+          description: contractData?.description,
+          amount: contractData?.amount,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // // Second API call to create project
+      // const projectResponse = await axios.post(
+      //   "http://localhost:8000/api/projects/",
       //   {
+      //     clientAddress: "0xfeA269e6e4C15Da4077a91ACA579845530127460", // Replace with actual client address
+      //     freelancerAddress: "0x0fD93EfA38E1E3c3FB9da0337897d1c41fDe238F", // Replace with actual freelancer address
       //     description: contractData?.description,
-      //     amount: contractData?.amount,
       //   },
       //   {
       //     headers: {
       //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "application/json", // ✅ Add this line
       //     },
       //   }
       // );
 
-      // Second API call to create project
-      const projectResponse = await axios.post(
-        'http://localhost:5000/api/projects/',
-        {
-          clientAddress:  "0xfeA269e6e4C15Da4077a91ACA579845530127460", // Replace with actual client address
-          freelancerAddress: "0x0fD93EfA38E1E3c3FB9da0337897d1c41fDe238F", // Replace with actual freelancer address
-          description: contractData?.description
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json', // ✅ Add this line
-          },
-        }
-      );
-
-      const amountresponse = await axios.post(
-        `http://localhost:5000/api/projects/${projectResponse.data.projectId}/fund`,
-        {
-          clientAddress:  "0xfeA269e6e4C15Da4077a91ACA579845530127460", // Replace with actual client address
-          freelancerAddress: "0x0fD93EfA38E1E3c3FB9da0337897d1c41fDe238F", // Replace with actual freelancer address
-          description: contractData?.description
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json', // ✅ Add this line
-          },
-        }
-      );
-      console.log(projectResponse);
-      console.log(amountresponse);
+      // const amountresponse = await axios.post(
+      //   `http://localhost:8000/api/projects/${projectResponse.data.projectId}/fund`,
+      //   {
+      //     clientAddress: "0xfeA269e6e4C15Da4077a91ACA579845530127460", // Replace with actual client address
+      //     freelancerAddress: "0x0fD93EfA38E1E3c3FB9da0337897d1c41fDe238F", // Replace with actual freelancer address
+      //     description: contractData?.description,
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "application/json", // ✅ Add this line
+      //     },
+      //   }
+      // );
+      // console.log(projectResponse);
+      // console.log(amountresponse);
       // // console.log("Contract Response:", contractResponse);
       // console.log("Project Response:", projectResponse);
 
-      // if (contractResponse.status === 200 && projectResponse.status === 200) {
-      //   const contract = contractResponse.data;
-      //   console.log(contract);
-      //   setContractData(contract);
-      //   toast.success("Contract approved and project created successfully!");
-      //   setIsEditing(false);
-      // }
+      if (contractResponse.status === 200) {
+        const contract = contractResponse.data;
+        console.log(contract);
+        setContractData(contract);
+        toast.success("Contract approved and project created successfully!");
+        setIsEditing(false);
+      }
     } catch (error: any) {
       console.log(error);
       const errorMessage = error.response?.data?.error || error.message;
@@ -851,16 +853,14 @@ const ChatComponent: React.FC = () => {
                     </Dialog>
                   )}
 
-                  {contractData?.length > 0 && (
-                    <Button
-                      variant="destructive"
-                      className="flex items-center gap-2 rounded-2xl px-4 py-2 shadow hover:scale-105 transition-transform"
-                      onClick={handleDelete}
-                    >
-                      Cancle Contract
-                      <Delete className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="destructive"
+                    className="flex items-center gap-2 rounded-2xl px-4 py-2 shadow hover:scale-105 transition-transform"
+                    onClick={handleDelete}
+                  >
+                    Cancle Contract
+                    <Delete className="w-4 h-4" />
+                  </Button>
 
                   {allTasks && (
                     <ViewTaskDialog
