@@ -115,7 +115,9 @@ const freelancerSchema = new mongoose.Schema(
         description: String,
       },
     ],
-
+    metamaskid : {
+      type: String,
+    },
     // Location & Availability
     country: {
       type: String,

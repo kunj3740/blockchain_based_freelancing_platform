@@ -331,4 +331,35 @@ export async function getJuror (req, res) {
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
+// Controller for adding the wallet (metamaskId) to an existing freelancer
+export async function addWallet (req, res) {
+  try {
+    console.log(req.body)
+    const { metamaskId,userId } = req.body;
+    // Check if metamaskId is provided in the request
+    if (!metamaskId) {
+      return res.status(400).json({ message: "Metamask ID is required" });
+    }
+    console.log(metamaskId)
+    // Find freelancer by email (assuming email is unique)
+    const freelancer = await FreelancerModel.findById(userId);
+    console.log(freelancer)
+    // If freelancer not found, return an error
+    if (!freelancer) {
+      return res.status(404).json({ message: "Freelancer not found" });
+    }
+
+    // Update freelancer's metamaskId
+    freelancer.metamaskid = metamaskId;
+
+    // Save the freelancer document
+    await freelancer.save();
+    console.log(freelancer)
+    // Return success response
+    res.status(200).json({ message: "Metamask ID added successfully", freelancer });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
