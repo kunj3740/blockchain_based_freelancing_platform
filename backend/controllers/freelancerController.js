@@ -56,11 +56,9 @@ export const addExperience = async (req, res) => {
 
   // Validate the input data
   if (!title || !company || !location || !startDate) {
-    return res
-      .status(400)
-      .json({
-        message: "Title, company, location, and start date are required.",
-      });
+    return res.status(400).json({
+      message: "Title, company, location, and start date are required.",
+    });
   }
 
   try {
@@ -99,11 +97,9 @@ export const addPortfolioItem = async (req, res) => {
 
   // Validate the input data
   if (!title || !description) {
-    return res
-      .status(400)
-      .json({
-        message: "Project name, tech stack, and description are required.",
-      });
+    return res.status(400).json({
+      message: "Project name, tech stack, and description are required.",
+    });
   }
 
   try {
@@ -284,11 +280,12 @@ export async function getAllFreelancer(req, res) {
   }
 }
 
-export async function addJuror (req, res) {
+export async function addJuror(req, res) {
   const { userId } = req.body;
   console.log("Adding juror:", userId);
   if (!userId) {
-    return res.status(400).json({ message: 'User ID is required.' });
+    return res.status(400).json({ message: "User ID is required." });
+    return res.status(400).json({ message: "User ID is required." });
   }
 
   try {
@@ -298,30 +295,32 @@ export async function addJuror (req, res) {
     if (existingJuror) {
       existingJuror.isAvailable = true;
       await existingJuror.save();
-      return res.status(200).json({ message: 'Juror status updated to available.' });
+      return res
+        .status(200)
+        .json({ message: "Juror status updated to available." });
     }
 
     // Create a new juror
     const newJuror = new JurorMOdel({
       userId,
-      role: 'freelancer', // You can dynamically get role from user model if needed
-      isAvailable: true
+      role: "freelancer", // You can dynamically get role from user model if needed
+      isAvailable: true,
     });
 
     await newJuror.save();
     console.log("New juror added:", newJuror);
-    return res.status(201).json({ message: 'Juror created successfully.' });
+    return res.status(201).json({ message: "Juror created successfully." });
   } catch (error) {
-    console.error('Error adding juror:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    console.error("Error adding juror:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
-};
+}
 
-export async function getJuror (req, res) {
+export async function getJuror(req, res) {
   const { userId } = req.params;
 
   if (!userId) {
-    return res.status(400).json({ message: 'User ID is required.' });
+    return res.status(400).json({ message: "User ID is required." });
   }
 
   try {
@@ -329,33 +328,33 @@ export async function getJuror (req, res) {
     const juror = await JurorMOdel.findOne({ userId });
 
     if (!juror) {
-      return res.status(404).json({ message: 'Juror not found.' });
+      return res.status(404).json({ message: "Juror not found." });
     }
 
     // Return juror status and info
     res.status(200).json({
       userId: juror.userId,
       isAvailable: juror.isAvailable,
-      role: juror.role
+      role: juror.role,
     });
   } catch (error) {
-    console.error('Error fetching juror data:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    console.error("Error fetching juror data:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
-};
+}
 // Controller for adding the wallet (metamaskId) to an existing freelancer
-export async function addWallet (req, res) {
+export async function addWallet(req, res) {
   try {
-    console.log(req.body)
-    const { metamaskId,userId } = req.body;
+    console.log(req.body);
+    const { metamaskId, userId } = req.body;
     // Check if metamaskId is provided in the request
     if (!metamaskId) {
       return res.status(400).json({ message: "Metamask ID is required" });
     }
-    console.log(metamaskId)
+    console.log(metamaskId);
     // Find freelancer by email (assuming email is unique)
     const freelancer = await FreelancerModel.findById(userId);
-    console.log(freelancer)
+    console.log(freelancer);
     // If freelancer not found, return an error
     if (!freelancer) {
       return res.status(404).json({ message: "Freelancer not found" });
@@ -366,12 +365,13 @@ export async function addWallet (req, res) {
 
     // Save the freelancer document
     await freelancer.save();
-    console.log(freelancer)
+    console.log(freelancer);
     // Return success response
-    res.status(200).json({ message: "Metamask ID added successfully", freelancer });
+    res
+      .status(200)
+      .json({ message: "Metamask ID added successfully", freelancer });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
-};
-
+}
