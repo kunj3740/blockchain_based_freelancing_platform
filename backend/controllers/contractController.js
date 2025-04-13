@@ -534,7 +534,6 @@ export const approveContract = async (req, res, next) => {
     if (contract.isApproved) {
       return next(createError(400, "Contract is already approved"));
     }
-
     contract.isApproved = true;
     contract.updatedBy = req.user._id;
     contract.updatedByType = req.user.type;

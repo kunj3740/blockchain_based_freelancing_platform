@@ -4,7 +4,12 @@ import { readFile } from 'fs/promises';
 // config.js
 import dotenv from 'dotenv';
 dotenv.config();
+import  express  from 'express'
+const app = express();
 
+// Body parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const abi = JSON.parse(
   await readFile(new URL('../contracts/abi.json', import.meta.url))
