@@ -9,6 +9,8 @@ import ChatComponet from "./components/custom/Chat";
 import { Navbar } from "./components/NavBar";
 import {ClientProfile} from "./components/ClientProfile";
 import {FreelancerProfile} from "./components/FreelancerProfile";
+import JurorDashboard from "./components/custom/JurorDashboard";
+import JurorDisputeDetail from "./components/custom/DisputeDetails";
 
 function App() {
   const location = useLocation();
@@ -32,6 +34,8 @@ function App() {
         <Route path="/chat/:id" element={<ChatComponet />} />"
         <Route path="/client/profile" element={<ClientProfile />} />"
         <Route path="/freelancer/profile" element={<FreelancerProfile/>} />"
+        <Route path="/juror/dash" element={<JurorDashboard/>} />"
+        <Route path="/juror/dispute/:id" element={<JurorDisputeDetail />} />
       </Routes>
     </>
   );
