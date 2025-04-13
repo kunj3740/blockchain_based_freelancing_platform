@@ -22,6 +22,9 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
+import toast from "react-hot-toast";
+import { Textarea } from "../ui/textarea";
+import ViewTaskDialog from "./ViewTaskDialog";
 
 interface Message {
   _id: string;
@@ -59,6 +62,7 @@ interface Contract {
   description: string;
   amount: number;
   _id: string;
+  isApproved: boolean;
 }
 
 const ChatComponent: React.FC = () => {
@@ -77,21 +81,26 @@ const ChatComponent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [isBookingInitialized, setIsBookingInitialized] = useState(true);
-  const [contractData, setContractData] = useState<Contract>({
-    description: "",
-    amount: 0,
-    _id: "",
-  });
+  const [isBookingInitialized, setIsBookingInitialized] = useState(false);
+  const [contractData, setContractData] = useState<Contract | null>(null);
 
   const [clientId, setClientId] = useState("");
   const [freelancerId, setFreelancerId] = useState("");
+
+  const [taskHeading, setTaskHeading] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskPercent, setTaskPercent] = useState<number>(0);
+  const [tasks, setTasks] = useState<any>([]);
+  const [allTasks, setAllTasks] = useState([]);
+  const [taskLoaded, setTaskLoaded] = useState<boolean>(false);
 
   console.log(contractData);
   const [isEditing, setIsEditing] = useState(false);
   console.log(user);
 
   const userRole = user?.role;
+
+  console.log(contractData, "contextdata");
 
   console.log(userRole);
   useEffect(() => {
@@ -230,6 +239,8 @@ const ChatComponent: React.FC = () => {
       console.log(response);
     } catch (error) {
       console.log(error);
+    } finally {
+      setOpen(false);
     }
   };
 
@@ -259,6 +270,74 @@ const ChatComponent: React.FC = () => {
     navigate(`/chat/${userId}`);
   };
 
+  const handleAddTask = () => {
+    // Validate inputs
+    if (!taskHeading.trim()) {
+      alert("Task heading cannot be empty");
+      return;
+    }
+
+    if (!taskDescription.trim()) {
+      alert("Task description cannot be empty");
+      return;
+    }
+
+    if (taskPercent <= 0 || taskPercent > 100) {
+      alert("Percentage must be between 1 and 100");
+      return;
+    }
+
+    // Add task to array
+    setTasks([
+      ...tasks,
+      {
+        heading: taskHeading,
+        description: taskDescription,
+        percent: taskPercent,
+      },
+    ]);
+
+    // Reset form fields for next task
+    setTaskHeading("");
+    setTaskDescription("");
+    setTaskPercent(0);
+  };
+
+  const submitTask = async () => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem("token"); // or whatever key you used
+      if (!token) return;
+
+      // Prepare the task data
+
+      // Make the API call to add task to the contract
+      const response = await axios.post(
+        `${BACKEND_URL}/api/contract/${contractData?._id}/tasks`,
+        tasks,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state with the response data
+      setTasks(response.data.tasks);
+
+      // Reset form fields for next task
+      setTaskHeading("");
+      setTaskDescription("");
+      setTaskPercent(0);
+    } catch (err: any) {
+      console.error("Error adding task:", err);
+      // alert(err.response?.data?.error || "Failed to add task");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getIsBookingInitialized = async () => {
     try {
       const token = localStorage.getItem("token"); // or whatever key you used
@@ -286,12 +365,18 @@ const ChatComponent: React.FC = () => {
   };
 
   const handleUpdate = async () => {
-    setIsEditing(true);
-    const token = localStorage.getItem("token"); // or whatever key you used
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
+    }
 
+    // Second click: submit updated data
+    const token = localStorage.getItem("token");
     try {
+      setLoading(true);
+
       const response = await axios.post(
-        `${BACKEND_URL}/api/contract/edit/${contractData._id}`,
+        `${BACKEND_URL}/api/contract/edit/${contractData?._id}`,
         {
           description,
           amount,
@@ -300,34 +385,40 @@ const ChatComponent: React.FC = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // 👈 Bearer Token here
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
-      console.log(response);
-      const contract = response.data.contract;
 
+      // console.log(response);
+      const contract = response.data.contract;
+      // console.log(contract);
       setContractData(contract);
 
-      if (response.data.success) setIsEditing(false);
+      if (response.data.success) {
+        setIsEditing(false); // exit editing mode
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Update error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAccept = async () => {
+    console.log(contractData);
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      console.log(description, amount);
-      console.log(contractData._id);
+      // console.log(description, amount);
+      // console.log(contractData._id);
       const response = await axios.put(
-        `http://localhost:8000/api/contract/${contractData._id}`,
+        `http://localhost:8000/api/contract/${contractData?._id}`,
         {
-          description: contractData.description,
-          amount: contractData.amount,
+          description: contractData?.description,
+          amount: contractData?.amount,
         },
         {
           headers: {
@@ -336,16 +427,43 @@ const ChatComponent: React.FC = () => {
         }
       );
 
+      console.log(response);
+
       if (response.status === 200) {
-        alert("Contract approved successfully!");
+        const contract = response.data;
+        console.log(contract);
+        setContractData(contract);
+        toast.success("Contract approved successfully!");
         setIsEditing(false);
       }
     } catch (error: any) {
-      console.log(error.message);
+      console.log(error);
+      const errorMesage = error.response.data.error;
       console.error("Error approving contract:", error.message);
-      alert("Failed to approve contract.");
+      toast.error(errorMesage || "Failed to approve contract.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getAddedTask = async () => {
+    const token = localStorage.getItem("token");
+
+    console.log(contractData?._id, "hello");
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/contract/${contractData?._id}/tasks`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
+      setAllTasks(response.data);
+      setTaskLoaded(true);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -357,7 +475,7 @@ const ChatComponent: React.FC = () => {
     if (user?.id) {
       fetchConversations();
     }
-  }, [user?.id]);
+  }, [user?.id, contractData]);
 
   useEffect(() => {
     if (receiverId && user?.id) {
@@ -388,12 +506,32 @@ const ChatComponent: React.FC = () => {
       }
     };
 
+    const handleUpdateAmount = (data: any) => {
+      setContractData(data);
+    };
+
+    const handleAcceptProposal = (data: any) => {
+      setContractData(data);
+    };
+
+    const handleCreatedContract = (data: any) => {
+      setContractData(data);
+    };
+
+    socket.on("updatedAmount", handleUpdateAmount);
+    socket.on("acceptProposal", handleAcceptProposal);
+    socket.on("contractAdded", handleCreatedContract);
+
     socket.on("newMessage", handleNewMessage);
 
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
   }, [socket, receiverId, user?.id]);
+
+  useEffect(() => {
+    getAddedTask();
+  }, [contractData]);
 
   if (!user?.id) {
     return (
@@ -407,6 +545,8 @@ const ChatComponent: React.FC = () => {
       </div>
     );
   }
+
+  console.log(allTasks);
 
   // Format timestamp
   const formatTime = (timestamp: string) => {
@@ -655,7 +795,14 @@ const ChatComponent: React.FC = () => {
                     </Dialog>
                   )}
 
-                  {isBookingInitialized && (
+                  {allTasks && (
+                    <ViewTaskDialog
+                      contractData={allTasks}
+                      user={user}
+                      contractId={contractData?._id || ""}
+                    />
+                  )}
+                  {(isBookingInitialized || contractData) && (
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button className="bg-[#007C4C] cursor-pointer hover:bg-[#007C4C]">
@@ -690,7 +837,7 @@ const ChatComponent: React.FC = () => {
                               />
                             ) : (
                               <p className="p-2 bg-gray-50 rounded">
-                                {contractData.description}
+                                {contractData?.description}
                               </p>
                             )}
                           </div>
@@ -706,7 +853,7 @@ const ChatComponent: React.FC = () => {
                               />
                             ) : (
                               <p className="p-2 bg-gray-50 rounded">
-                                ₹{contractData.amount}
+                                ₹{contractData?.amount}
                               </p>
                             )}
                           </div>
@@ -716,26 +863,108 @@ const ChatComponent: React.FC = () => {
                           {user?.role === "freelancer" && (
                             <Button
                               onClick={handleUpdate}
-                              disabled={loading}
+                              disabled={loading || contractData?.isApproved}
                               className="bg-[#007C4C] hover:bg-[#00663e]"
                             >
-                              {loading
+                              {contractData?.isApproved
+                                ? "Proposal Accepted"
+                                : loading
                                 ? "Updating..."
                                 : isEditing
                                 ? "Save Changes"
                                 : "Update Proposal"}
                             </Button>
                           )}
+
                           {user?.role === "client" && (
                             <Button
                               onClick={handleAccept}
-                              disabled={loading}
+                              disabled={loading || contractData?.isApproved}
                               className="bg-emerald-600 hover:bg-emerald-700"
                             >
-                              {loading ? "Processing..." : "Accept Proposal"}
+                              {contractData?.isApproved
+                                ? "Proposal Accepted"
+                                : loading
+                                ? "Processing..."
+                                : "Accept Proposal"}
                             </Button>
                           )}
+
+                          {user?.role === "freelancer" &&
+                            contractData?.isApproved && (
+                              <Button
+                                onClick={handleAddTask}
+                                className="bg-emerald-600 hover:bg-emerald-700"
+                              >
+                                Add Task
+                              </Button>
+                            )}
                         </DialogFooter>
+                        <div>
+                          {user?.role === "client" ? (
+                            false
+                          ) : (
+                            <div className="space-y-4 mt-4">
+                              <h3 className="font-semibold text-lg">
+                                Add Task / Milestone
+                              </h3>
+
+                              <Input
+                                placeholder="Task Heading"
+                                value={taskHeading}
+                                onChange={(e) => setTaskHeading(e.target.value)}
+                              />
+                              <Textarea
+                                placeholder="Task Description"
+                                value={taskDescription}
+                                onChange={(e) =>
+                                  setTaskDescription(e.target.value)
+                                }
+                              />
+                              <Input
+                                type="number"
+                                min={0}
+                                max={100}
+                                placeholder="Percentage"
+                                value={taskPercent}
+                                onChange={(e) =>
+                                  setTaskPercent(Number(e.target.value))
+                                }
+                              />
+                              <Button
+                                onClick={submitTask}
+                                className="bg-[#007C4C] hover:bg-[#00663e]"
+                              >
+                                Submit Task
+                              </Button>
+
+                              {/* List of added tasks */}
+                              {tasks.length > 0 && (
+                                <div className="space-y-2 pt-4">
+                                  <h4 className="font-semibold">Added Tasks</h4>
+                                  {tasks.map((task: any, index: any) => (
+                                    <div
+                                      key={index}
+                                      className="p-3 border rounded-md bg-gray-50 space-y-1"
+                                    >
+                                      <p>
+                                        <strong>Heading:</strong> {task.heading}
+                                      </p>
+                                      <p>
+                                        <strong>Description:</strong>{" "}
+                                        {task.description}
+                                      </p>
+                                      <p>
+                                        <strong>Percentage:</strong>{" "}
+                                        {task.percent}%
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </DialogContent>
                     </Dialog>
                   )}
