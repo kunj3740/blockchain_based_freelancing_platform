@@ -22,6 +22,7 @@ export interface PaymentMethod {
     country: string;
     city: string;
     address: string;
+    metamaskid :  string,
     avatar: string;
     orders: Order[];
     favorites: any[];
@@ -65,6 +66,7 @@ export interface PaymentMethod {
     skills: string[];
     avatar: string;
     hourlyRate: number;
+    metamaskid : string;
     country: string;
     timezone: string;
     portfolio: Portfolio[];

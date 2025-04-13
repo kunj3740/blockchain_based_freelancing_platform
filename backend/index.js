@@ -2,6 +2,8 @@
 
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
 import dotenv from "dotenv";
 import connectDB from "./lib/db.js";
 import authRoute from "./routes/auth.route.js";
@@ -13,19 +15,24 @@ import buyerRoute from "./routes/buyer.route.js";
 import messageRoute from "./routes/message.route.js";
 import contractRoute from "./routes/contract.route.js";
 import { io, app, server } from "./lib/socket.js";
+import projectRoutes from './routes/projectRoutes.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 
+app.use(helmet());
 app.use(cors());
+app.use(morgan('dev'));
 app.use(express.json());
+
 
 // Routes
 app.use("/api/auth", authRoute);
 app.use("/api/buyers", buyerRoute);
 app.use("/api/freelancers", freelancerRoutes);
 app.use("/api/gigs", gitRoute);
+app.use("/api/projects",projectRoutes)
 app.use("/api/orders", orderRoute);
 app.use("/api/categories", categoryRoute);
 app.use("/api/messages", messageRoute);

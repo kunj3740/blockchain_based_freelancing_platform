@@ -11,7 +11,10 @@ import {
   getEarnings,
   getAllFreelancer,
   addEducation,
-  addExperience
+  addExperience,
+  addJuror,
+  getJuror,
+  addWallet
 } from "../controllers/freelancerController.js";
 
 // Profile Routes
@@ -25,6 +28,9 @@ router.delete("/portfolio/:id", auth, isFreelancer, deletePortfolioItem);
 router.post("/education", auth, isFreelancer, addEducation);
 router.post('/experience', auth, addExperience);
 router.post('/portfolio', auth, addPortfolioItem);
+router.post('/wallet', addWallet);
+router.post('/juror', addJuror);
+router.get('/juror/:userId', getJuror);
 router.put("/skills", auth, isFreelancer, updateSkills);
 
 // Earnings & Analytics
